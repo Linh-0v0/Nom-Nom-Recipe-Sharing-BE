@@ -5,24 +5,10 @@ const sendPasswordResetMail = async (req, res) => {
   const email = await req.params.email
   console.log('emailll', email)
   try {
-    // client.get(token, (err, userid) => {
-    //   if (err) {
-    //     console.error(err)
-    //     return res.status(500).json({ message: 'Internal server error' })
-    //   }
-    //   if (!userid) {
-    //     return res.status(400).json({ message: 'Invalid or expired token' })
-    //   }
-
-    // Retrieve the user ID from the temporary table using the token
-
-    // const user = await db.oneOrNone('SELECT * FROM users WHERE email = $1', [
-    //   email
-    // ])
     const hourAgo = new Date(Date.now() - 60 * 60 * 1000) // get the time one hour ago
 
     const user = await db.oneOrNone(
-      'SELECT * FROM users WHERE email = $1 AND resetTokenExpiration > $2',
+      'SELECT * FROM users WHERE email = $1 AND reset_token_expiration > $2',
       [email, hourAgo]
     )
 
@@ -42,8 +28,9 @@ const sendPasswordResetMail = async (req, res) => {
       return res.status(400).json({ msg: 'Google Token out of date.' })
     }
 
-    console.log('access', googleTokenData)
-    console.log('accesstoken', googleTokenData.access_token)
+    // console.log('access', googleTokenData)
+    console.log('userID', user_id)
+    console.log('userResetToken', resetToken)
 
     // Create a Nodemailer transporter object
     // 'user' in auth: the sender
@@ -78,10 +65,6 @@ const sendPasswordResetMail = async (req, res) => {
           .json({ msg: 'Password reset token sent to email' })
       }
     })
-
-    //   // Delete token from Redis to prevent reuse
-    //   client.del(token)
-    // })
   } catch (err) {
     console.log(err)
     res.status(500).json({ msg: err })

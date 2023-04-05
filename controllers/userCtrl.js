@@ -205,19 +205,20 @@ userCtrl.resetPassword = async (req, res) => {
     const { resetToken, userId } = req.params
     const { password } = req.body
 
-    //Check if reset_token is in the database and not expired
+    //Check if reset_token is in the database
     const user = await db.oneOrNone(
-      'SELECT * FROM users WHERE id = $1 AND reset_token = $2 AND reset_token_exp > NOW()',
-      [userId, resetToken]
+      'SELECT * FROM users WHERE id = $1',
+      [userId]
     )
+
     if (!user) {
-      return res.status(400).send('Invalid or expired reset token')
+      return res.status(400).send('Invalid user email.')
     }
 
     // Update the user's password and remove the reset token
     const hashedPassword = await bcrypt.hash(password, 10)
     await db.none(
-      'UPDATE users SET password = $1, reset_token = NULL, reset_token_exp = NULL WHERE id = $2',
+      'UPDATE users SET password = $1, reset_token = NULL, reset_token_expiration = NULL WHERE id = $2',
       [hashedPassword, userId]
     )
 

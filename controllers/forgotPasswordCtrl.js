@@ -15,18 +15,6 @@ const forgotPassword = async (req, res) => {
     console.log('USERID:', user_id)
     // await db.none('INSERT INTO google_tokens(user_id) VALUES($1)', [user_id])
 
-    /* */
-    // // Get the OAuth2 client object
-    // const oAuth2Client = await OAuth2Client.getOAuth2Client()
-
-    // // Use the code to exchange for an access token and refresh token
-    // const { tokens } = await oAuth2Client.getToken(code)
-    // console.log("TOKEN:", tokens)
-    // // Store the refresh token securely in your database for future use
-    // const refreshToken = tokens.refresh_token
-
-    /* */
-
     // Generate a password reset token & save to user database
     const resetToken = Math.floor(Math.random() * 100000000)
     // const resetToken = jwt.sign(user, process.env.SECRET_KEY, { expiresIn: '60m' })

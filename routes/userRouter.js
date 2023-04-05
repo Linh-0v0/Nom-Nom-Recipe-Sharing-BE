@@ -2,6 +2,7 @@ const User = require('../controllers/userCtrl')
 const forgotPassword = require('../controllers/forgotPasswordCtrl')
 const sendPasswordResetMail = require('../controllers/sendPasswordResetMail')
 const user_auth = require('../middleware/user_auth')
+const reset_pass_token_auth = require('../middleware/reset_pass_token_auth')
 const {
   getAuthUrl,
   getAccessToken,
@@ -20,7 +21,11 @@ router.get('/auth/logout', User.logout)
 router.get('/auth/refresh_token', User.refreshToken)
 
 router.post('/forgot-password', forgotPassword)
-router.post('/reset-password/:resetToken/:userId', User.resetPassword)
+router.post(
+  '/reset-password/:resetToken/:userId',
+  reset_pass_token_auth,
+  User.resetPassword
+)
 
 router.get('/user/my-profile', user_auth, User.getUser)
 // router.get("/users", User.getAllUsers);
