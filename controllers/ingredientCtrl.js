@@ -6,6 +6,7 @@ ingredientCtrl.insert = async (req, res) => {
   const {
     ing_name,
     quantity,
+    unit_name,
     calories,
     carb,
     protein,
@@ -27,12 +28,13 @@ ingredientCtrl.insert = async (req, res) => {
   await db
     .none(
       `
-  INSERT INTO ingredients(ing_name, quantity, calories, carb, protein, fat, sugar, sodium, fiber, cholesterol, mineral, vitamin_a, vitamin_b12, vitamin_b6, vitamin_c, vitamin_d, vitamin_e, vitamin_k)
-  VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+  INSERT INTO ingredients(ing_name, quantity, unit_name, calories, carb, protein, fat, sugar, sodium, fiber, cholesterol, mineral, vitamin_a, vitamin_b12, vitamin_b6, vitamin_c, vitamin_d, vitamin_e, vitamin_k)
+  VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
 `,
       [
         ing_name,
         quantity,
+        unit_name,
         calories,
         carb,
         protein,
@@ -77,6 +79,7 @@ ingredientCtrl.update = async (req, res) => {
   const {
     name,
     quantity,
+    unit_name,
     calories,
     carb,
     protein,
@@ -98,28 +101,30 @@ ingredientCtrl.update = async (req, res) => {
   try {
     const result = await db.result(
       `UPDATE ingredients SET
-          ing_name = $1,
-          quantity = $2,
-          calories = $3,
-          carb = $4,
-          protein = $5,
-          fat = $6,
-          sugar = $7,
-          sodium = $8,
-          fiber = $9,
-          cholesterol = $10,
-          mineral = $11,
-          vitamin_a = $12,
-          vitamin_b12 = $13,
-          vitamin_b6 = $14,
-          vitamin_c = $15,
-          vitamin_d = $16,
-          vitamin_e = $17,
-          vitamin_k = $18,
-        WHERE id = $19`,
+      name = $1,
+      quantity = $2,
+      unit_name = $3,
+      calories = $4,
+      carb = $5,
+      protein = $6,
+      fat = $7,
+      sugar = $8,
+      sodium = $9,
+      fiber = $10,
+      cholesterol = $11,
+      mineral = $12,
+      vitamin_a = $13,
+      vitamin_b12 = $14,
+      vitamin_b6 = $15,
+      vitamin_c = $16,
+      vitamin_d = $17,
+      vitamin_e = $18,
+      vitamin_k = $19
+    WHERE id = $20`,
       [
         name,
         quantity,
+        unit_name,
         calories,
         carb,
         protein,
