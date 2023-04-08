@@ -22,9 +22,34 @@ CREATE TABLE IF NOT EXISTS ingredients (
 );
 
 -- Insert sample ingredients
-INSERT INTO ingredients (ing_name, quantity, unit_name, calories)
-VALUES ('Flour', 500, 'grams', 1500),
-       ('Sugar', 100, 'grams', 400),
-       ('Salt', 5, 'grams', 0),
-       ('Water', 250, 'milliliters', 0)
+INSERT INTO ingredients (
+  ing_name, 
+  quantity, 
+  unit_name, 
+  calories, 
+  carb, 
+  protein, 
+  fat, 
+  sugar, 
+  sodium, 
+  fiber, 
+  cholesterol, 
+  mineral, 
+  vitamin_a, 
+  vitamin_b12, 
+  vitamin_b6, 
+  vitamin_c, 
+  vitamin_d, 
+  vitamin_e, 
+  vitamin_k
+) VALUES 
+  ('Chicken Breast', 100, 'g', 165, 0, 31, 3.6, 0, 64, 0, 88, NULL, 1, 0.12, 0.53, 0, 0, 0.04, 0),
+  ('Salmon', 100, 'g', 206, 0, 20, 13, 0, 59, 0, 55, NULL, 9, 4.79, 0.67, 0, 0, 2.38, 0),
+  ('Egg', 50, 'g', 72, 0.36, 6.3, 4.8, 0.36, 71, 0, 186, NULL, 80, 0.89, 0.09, 0, 2.83, 0.49, 0.15),
+  ('Quinoa', 50, 'g', 56, 10.5, 2.4, 0.9, 0.87, 7, 1.5, 0, NULL, 0, 0, 0.06, 0, 0, 0.31, 0.3),
+  ('Sweet Potato', 100, 'g', 86, 20.1, 1.6, 0.1, 4.2, 55, 3, 0, NULL, 19218, 0, 0.17, 2.4, 0, 0.26, 1.8),
+  ('Spinach', 50, 'g', 7, 0.86, 0.86, 0.13, 0.43, 79, 0.7, 0, 'Iron', 469, 0, 0.065, 28.1, 0, 2.03, 144),
+  ('Tomato', 100, 'g', 18, 3.9, 0.9, 0.2, 2.6, 5, 1.2, 0, 'Lycopene', 833, 0, 0.06, 14, 0, 0.54, 0.8),
+  ('Avocado', 50, 'g', 80, 4, 1, 7, 0.2, 0, 3, 0, NULL, 7, 0, 0.11, 3.2, 0, 1.32, 7),
+  ('Lemon Juice', 10, 'ml', 1, 0.3, 0.1, 0, 0.1, 1, 0,)
 ON CONFLICT DO NOTHING;
