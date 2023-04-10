@@ -43,7 +43,6 @@ recipeCtrl.insert = async (req, res) => {
 //Function get recipe by name 
 recipeCtrl.getByName = async (req, res) => {
   const word = req.params.word;
-
   try {
     const recipes = await db.any('SELECT * FROM recipe WHERE name ILIKE $1', [`%${word}%`]);
     if (recipes.length > 0) {
@@ -57,6 +56,56 @@ recipeCtrl.getByName = async (req, res) => {
     res.status(500).json({ message: 'Error retrieving recipes' });
   }
 };
+
+//Function get recipe by origin
+recipeCtrl.getByOrigin = async (req, res) => {
+  const word = req.params.word;
+
+  try {
+    const recipes = await db.any('SELECT * FROM recipe WHERE origin ILIKE $1', [`%${word}%`]);
+    if (recipes.length > 0) {
+      res.status(200).json(recipes);
+      console.log('Retrived by origin successfully')
+    } else {
+      res.status(404).json({ message: 'No recipes found' });
+    }
+  } catch (error) {
+    console.error('Error retrieving recipes:', error);
+    res.status(500).json({ message: 'Error retrieving recipes' });
+  }
+};
+
+//Function get recipe by Diet Type
+recipeCtrl.getByDiet = async (req, res) => {
+  const word = req.params.word;
+
+  try {
+    const recipes = await db.any('SELECT * FROM recipe WHERE diet_type ILIKE $1', [`%${word}%`]);
+    if (recipes.length > 0) {
+      res.status(200).json(recipes);
+      console.log('Retrived by diet type successfully')
+    } else {
+      res.status(404).json({ message: 'No recipes found' });
+    }
+  } catch (error) {
+    console.error('Error retrieving recipes:', error);
+    res.status(500).json({ message: 'Error retrieving recipes' });
+  }
+};
+
+//Function get by user
+recipeCtrl.getByUser = async (req, res) => {
+  const { author_id } = req.params;
+  const recipes = await db.any(
+    `SELECT * FROM recipe WHERE author_id = $1`,
+    [author_id]
+  )
+  if (recipes) {
+    res.status(200).json(recipes)
+  } else {
+    res.status(404).send('Recipe not found')
+  }
+}
 
 //Function get all recipes
 recipeCtrl.getAll = async (req, res) => {
