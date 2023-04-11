@@ -21,14 +21,17 @@ ingredientCtrl.insert = async (req, res) => {
     vitamin_c,
     vitamin_d,
     vitamin_e,
-    vitamin_k
+    vitamin_k,
+    potassium,
+    calcium, 
+    iron
   } = req.body
 
   await db
     .none(
       `
-  INSERT INTO ingredients(ing_name, quantity, unit_name, calories, carb, protein, fat, sugar, sodium, fiber, cholesterol, mineral, vitamin_a, vitamin_b12, vitamin_b6, vitamin_c, vitamin_d, vitamin_e, vitamin_k)
-  VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+  INSERT INTO ingredients(ing_name, quantity, unit_name, calories, carb, protein, fat, sugar, sodium, fiber, cholesterol, mineral, vitamin_a, vitamin_b12, vitamin_b6, vitamin_c, vitamin_d, vitamin_e, vitamin_k, potassium, calcium, iron)
+  VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
 `,
       [
         ing_name,
@@ -48,7 +51,10 @@ ingredientCtrl.insert = async (req, res) => {
         vitamin_c,
         vitamin_d,
         vitamin_e,
-        vitamin_k
+        vitamin_k,
+        potassium,
+        calcium, 
+        iron
       ]
     )
     .then(() => {
@@ -103,7 +109,10 @@ ingredientCtrl.update = async (req, res) => {
     vitamin_c,
     vitamin_d,
     vitamin_e,
-    vitamin_k
+    vitamin_k,
+    potassium,
+    calcium, 
+    iron
   } = req.body
 
   try {
@@ -126,8 +135,11 @@ ingredientCtrl.update = async (req, res) => {
       vitamin_c = $15,
       vitamin_d = $16,
       vitamin_e = $17,
-      vitamin_k = $18
-    WHERE id = $19`,
+      vitamin_k = $18,
+      potassium = $19,
+      calcium = $20, 
+      iron = $21
+    WHERE id = $22`,
       [
         ing_name,
         quantity,
@@ -147,6 +159,9 @@ ingredientCtrl.update = async (req, res) => {
         vitamin_d,
         vitamin_e,
         vitamin_k,
+        potassium,
+        calcium, 
+        iron,
         ingredientId
       ]
     )
