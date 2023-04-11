@@ -18,8 +18,6 @@ CREATE TABLE IF NOT EXISTS recipe  (
   serving_size VARCHAR(255),
   duration INTERVAL, 
   image_link VARCHAR(255),
-  origin VARCHAR(255),
-  diet_type VARCHAR(255),
   description TEXT NOT NULL
 )
 

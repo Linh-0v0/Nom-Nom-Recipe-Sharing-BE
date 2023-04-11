@@ -10,16 +10,14 @@ recipeCtrl.insert = async (req, res) => {
     serving_size,
     duration,
     image_link,
-    origin,
-    diet_type,
     description
   } = req.body;
 
   try {
     await db.none(
       `
-      INSERT INTO recipe (author_id, name, serving_size, duration, image_link, origin, diet_type, description)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO recipe (author_id, name, serving_size, duration, image_link, description)
+      VALUES ($1, $2, $3, $4, $5, $6)
     `,
       [
         author_id,
@@ -27,8 +25,6 @@ recipeCtrl.insert = async (req, res) => {
         serving_size,
         duration,
         image_link,
-        origin,
-        diet_type,
         description
       ]
     );
@@ -48,42 +44,6 @@ recipeCtrl.getByName = async (req, res) => {
     if (recipes.length > 0) {
       res.status(200).json(recipes);
       console.log('Retrived by name successfully')
-    } else {
-      res.status(404).json({ message: 'No recipes found' });
-    }
-  } catch (error) {
-    console.error('Error retrieving recipes:', error);
-    res.status(500).json({ message: 'Error retrieving recipes' });
-  }
-};
-
-//Function get recipe by origin
-recipeCtrl.getByOrigin = async (req, res) => {
-  const word = req.params.word;
-
-  try {
-    const recipes = await db.any('SELECT * FROM recipe WHERE origin ILIKE $1', [`%${word}%`]);
-    if (recipes.length > 0) {
-      res.status(200).json(recipes);
-      console.log('Retrived by origin successfully')
-    } else {
-      res.status(404).json({ message: 'No recipes found' });
-    }
-  } catch (error) {
-    console.error('Error retrieving recipes:', error);
-    res.status(500).json({ message: 'Error retrieving recipes' });
-  }
-};
-
-//Function get recipe by Diet Type
-recipeCtrl.getByDiet = async (req, res) => {
-  const word = req.params.word;
-
-  try {
-    const recipes = await db.any('SELECT * FROM recipe WHERE diet_type ILIKE $1', [`%${word}%`]);
-    if (recipes.length > 0) {
-      res.status(200).json(recipes);
-      console.log('Retrived by diet type successfully')
     } else {
       res.status(404).json({ message: 'No recipes found' });
     }

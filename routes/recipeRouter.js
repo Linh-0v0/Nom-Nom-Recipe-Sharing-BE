@@ -7,8 +7,6 @@ const recipeRouter = express.Router()
 recipeRouter.get('/', recipeCtrl.getAll)
 recipeRouter.get('/:recipe_id', recipeCtrl.get)
 recipeRouter.get('/name/:word', recipeCtrl.getByName)
-recipeRouter.get('/origin/:word', recipeCtrl.getByOrigin)
-recipeRouter.get('/diet/:word', recipeCtrl.getByDiet)
 recipeRouter.get('/user/:author_id', recipeCtrl.getByUser)
 
 
