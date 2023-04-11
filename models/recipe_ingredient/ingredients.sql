@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS ingredients (
   sodium DECIMAL(10,2) NULL,
   fiber DECIMAL(10,2) NULL,
   cholesterol DECIMAL(10,2) NULL,
-  mineral VARCHAR(255) NULL,
   vitamin_a DECIMAL(10,2) NULL,
   vitamin_b12 DECIMAL(10,2) NULL,
   vitamin_b6 DECIMAL(10,2) NULL,
@@ -34,7 +33,6 @@ INSERT INTO ingredients (
   sodium, 
   fiber, 
   cholesterol, 
-  mineral, 
   vitamin_a, 
   vitamin_b12, 
   vitamin_b6, 
@@ -43,13 +41,12 @@ INSERT INTO ingredients (
   vitamin_e, 
   vitamin_k
 ) VALUES 
-  ('Chicken Breast', 100, 'g', 165, 0, 31, 3.6, 0, 64, 0, 88, NULL, 1, 0.12, 0.53, 0, 0, 0.04, 0),
-  ('Salmon', 100, 'g', 206, 0, 20, 13, 0, 59, 0, 55, NULL, 9, 4.79, 0.67, 0, 0, 2.38, 0),
-  ('Egg', 50, 'g', 72, 0.36, 6.3, 4.8, 0.36, 71, 0, 186, NULL, 80, 0.89, 0.09, 0, 2.83, 0.49, 0.15),
-  ('Quinoa', 50, 'g', 56, 10.5, 2.4, 0.9, 0.87, 7, 1.5, 0, NULL, 0, 0, 0.06, 0, 0, 0.31, 0.3),
-  ('Sweet Potato', 100, 'g', 86, 20.1, 1.6, 0.1, 4.2, 55, 3, 0, NULL, 19218, 0, 0.17, 2.4, 0, 0.26, 1.8),
-  ('Spinach', 50, 'g', 7, 0.86, 0.86, 0.13, 0.43, 79, 0.7, 0, 'Iron', 469, 0, 0.065, 28.1, 0, 2.03, 144),
-  ('Tomato', 100, 'g', 18, 3.9, 0.9, 0.2, 2.6, 5, 1.2, 0, 'Lycopene', 833, 0, 0.06, 14, 0, 0.54, 0.8),
-  ('Avocado', 50, 'g', 80, 4, 1, 7, 0.2, 0, 3, 0, NULL, 7, 0, 0.11, 3.2, 0, 1.32, 7),
-  ('Lemon Juice', 10, 'ml', 1, 0.3, 0.1, 0, 0.1, 1, 0,)
-ON CONFLICT DO NOTHING;
+  ('Chicken Breast', 100, 'grams', 165, 0, 31, 3.6, 0, 64, 0, 88, 1, 0.12, 0.53, 0, 0, 0.04, 0),
+  ('Salmon', 100, 'grams', 206, 0, 20, 13, 0, 59, 0, 55, 9, 4.79, 0.67, 0, 0, 2.38, 0),
+  ('Egg', 50, 'grams', 72, 0.36, 6.3, 4.8, 0.36, 71, 0, 186, 80, 0.89, 0.09, 0, 2.83, 0.49, 0.15),
+  ('Quinoa', 50, 'grams', 56, 10.5, 2.4, 0.9, 0.87, 7, 1.5, 0, 0, 0, 0.06, 0, 0, 0.31, 0.3),
+  ('Sweet Potato', 100, 'grams', 86, 20.1, 1.6, 0.1, 4.2, 55, 3, 0, 19218, 0, 0.17, 2.4, 0, 0.26, 1.8),
+  ('Spinach', 50, 'grams', 7, 0.86, 0.86, 0.13, 0.43, 79, 0.7, 0, 469, 0, 0.065, 28.1, 0, 2.03, 144),
+  ('Tomato', 100, 'grams', 18, 3.9, 0.9, 0.2, 2.6, 5, 1.2, 0, 833, 0, 0.06, 14, 0, 0.54, 0.8),
+  ('Avocado', 50, 'grams', 80, 4, 1, 7, 0.2, 0, 3, 0, 7, 0, 0.11, 3.2, 0, 1.32, 7)
+  ON CONFLICT DO NOTHING;

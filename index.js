@@ -3,7 +3,6 @@ const session = require('express-session')
 const cors = require('cors')
 const app = express()
 const cookieParser = require('cookie-parser')
-// const server = require("http").createServer(app);
 
 require('dotenv').config()
 
@@ -19,8 +18,9 @@ app.use(cookieParser())
 // Middleware to parse JSON payloads
 app.use(express.json())
 
-//Routers for signup/login/logout
+//Routers for all functions
 app.use('/', require('./routes/userRouter'))
+app.use('/', require('./routes/ingredientRouter'))
 
 app.get('/', function (req, res) {
   res.send('Hello World')

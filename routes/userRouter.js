@@ -9,7 +9,6 @@ const {
   getNewAccessToken,
   googleCallBack
 } = require('../controllers/google_auth')
-const session = require('express-session')
 
 //'router': used to define routes for our application.
 //.Router(): telling app to use expressJS to req,res http

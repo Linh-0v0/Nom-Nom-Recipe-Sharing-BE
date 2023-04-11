@@ -15,7 +15,6 @@ ingredientCtrl.insert = async (req, res) => {
     sodium,
     fiber,
     cholesterol,
-    mineral,
     vitamin_a,
     vitamin_b12,
     vitamin_b6,
@@ -43,7 +42,6 @@ ingredientCtrl.insert = async (req, res) => {
         sodium,
         fiber,
         cholesterol,
-        mineral,
         vitamin_a,
         vitamin_b12,
         vitamin_b6,
@@ -64,8 +62,19 @@ ingredientCtrl.insert = async (req, res) => {
 ingredientCtrl.get = async (req, res) => {
   const { ingredientId } = req.params
   const ingredient = await db.one(
-    `SELECT * FROM ingredients WHERE ing_id = $1`,
+    `SELECT * FROM ingredients WHERE id = $1`,
     [ingredientId]
+  )
+  if (ingredient) {
+    res.status(200).json(ingredient)
+  } else {
+    res.status(404).send('Ingredient not found')
+  }
+}
+
+ingredientCtrl.getAll = async (req, res) => {
+  const ingredient = await db.manyOrNone(
+    `SELECT * FROM ingredients`
   )
   if (ingredient) {
     res.status(200).json(ingredient)
@@ -77,7 +86,7 @@ ingredientCtrl.get = async (req, res) => {
 ingredientCtrl.update = async (req, res) => {
   const { ingredientId } = req.params
   const {
-    name,
+    ing_name,
     quantity,
     unit_name,
     calories,
@@ -88,7 +97,6 @@ ingredientCtrl.update = async (req, res) => {
     sodium,
     fiber,
     cholesterol,
-    mineral,
     vitamin_a,
     vitamin_b12,
     vitamin_b6,
@@ -101,7 +109,7 @@ ingredientCtrl.update = async (req, res) => {
   try {
     const result = await db.result(
       `UPDATE ingredients SET
-      name = $1,
+      ing_name = $1,
       quantity = $2,
       unit_name = $3,
       calories = $4,
@@ -112,17 +120,16 @@ ingredientCtrl.update = async (req, res) => {
       sodium = $9,
       fiber = $10,
       cholesterol = $11,
-      mineral = $12,
-      vitamin_a = $13,
-      vitamin_b12 = $14,
-      vitamin_b6 = $15,
-      vitamin_c = $16,
-      vitamin_d = $17,
-      vitamin_e = $18,
-      vitamin_k = $19
-    WHERE id = $20`,
+      vitamin_a = $12,
+      vitamin_b12 = $13,
+      vitamin_b6 = $14,
+      vitamin_c = $15,
+      vitamin_d = $16,
+      vitamin_e = $17,
+      vitamin_k = $18
+    WHERE id = $19`,
       [
-        name,
+        ing_name,
         quantity,
         unit_name,
         calories,
@@ -133,7 +140,6 @@ ingredientCtrl.update = async (req, res) => {
         sodium,
         fiber,
         cholesterol,
-        mineral,
         vitamin_a,
         vitamin_b12,
         vitamin_b6,
@@ -153,14 +159,17 @@ ingredientCtrl.update = async (req, res) => {
 }
 
 ingredientCtrl.delete = async (req, res) => {
-    try {
-        const result = await db.result('DELETE FROM ingredients WHERE id = $1', [ingredientId]);
-        //check boolean if the row is deleted
-        return result.rowCount === 1;
-      } catch (err) {
-        console.log('Error deleting ingredient:', err.message);
-        return false;
-      }
+  const { ingredientId } = req.params
+  try {
+    const result = await db.result('DELETE FROM ingredients WHERE id = $1', [
+      ingredientId
+    ])
+    //check boolean if the row is deleted
+    return result.rowCount === 1
+  } catch (err) {
+    console.log('Error deleting ingredient:', err.message)
+    return false
+  }
 }
 
 module.exports = ingredientCtrl

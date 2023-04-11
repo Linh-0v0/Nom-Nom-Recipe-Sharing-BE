@@ -23,7 +23,9 @@ userCtrl.register = async (req, res) => {
       .status(400)
       .json({ msg: 'UserEmail Already Exist. Please Login' })
   } else if (oldName) {
-    return res.status(400).json({ msg: 'UserName Already Exist. Change username please.' })
+    return res
+      .status(400)
+      .json({ msg: 'UserName Already Exist. Change username please.' })
   } else if (password.length < 6) {
     return res
       .status(400)
@@ -60,7 +62,6 @@ userCtrl.register = async (req, res) => {
       accesstoken: accesstoken,
       refreshtoken: refreshtoken
     })
-
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: error })
@@ -115,6 +116,22 @@ userCtrl.logout = async (req, res) => {
     return res.json({ msg: 'Logged out' })
   } catch (err) {
     return res.status(500).json({ msg: err.message })
+  }
+}
+
+userCtrl.delete = async (req, res) => {
+  try {
+    const {id} = req.params
+    const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [id])
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+    
+    await db.oneOrNone('DELETE FROM users WHERE id = $1', [id])
+    return res.status(200).json({ msg: 'User deleted' })
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ error: 'Server error' })
   }
 }
 
@@ -206,10 +223,9 @@ userCtrl.resetPassword = async (req, res) => {
     const { password } = req.body
 
     //Check if reset_token is in the database
-    const user = await db.oneOrNone(
-      'SELECT * FROM users WHERE id = $1',
-      [userId]
-    )
+    const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [
+      userId
+    ])
 
     if (!user) {
       return res.status(400).send('Invalid user email.')
