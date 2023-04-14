@@ -11,7 +11,8 @@
 
 CREATE TABLE IF NOT EXISTS recipe  (
   recipe_id SERIAL PRIMARY KEY,
-  author_id INT NOT NULL,
+  author_id INT not null,
+  FOREIGN KEY (author_id) REFERENCES users(id),
   name VARCHAR(255) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -21,5 +22,5 @@ CREATE TABLE IF NOT EXISTS recipe  (
   description TEXT NOT NULL
 )
 
---   FOREIGN KEY (author_id) REFERENCES users(id)
+
 

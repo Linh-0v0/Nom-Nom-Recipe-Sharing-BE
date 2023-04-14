@@ -21,6 +21,8 @@ app.use(express.json())
 
 //Routers for signup/login/logout
 app.use('/', require('./routes/userRouter'))
+app.use('/recipe', require('./routes/recipeRouter'))
+app.use('/collection', require('./routes/collectionRouter'))
 
 app.get('/', function (req, res) {
   res.send('Hello World')

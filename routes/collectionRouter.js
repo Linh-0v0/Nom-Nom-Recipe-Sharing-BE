@@ -1,27 +1,33 @@
 const express = require('express');
-const router = express.Router();
 const collectionCtrl = require('../controllers/collectionCtrl');
-// const { isAuthenticated } = require();
+const collectionRouter = express.Router()
+const user_auth = require('../middleware/user_auth')
 
 // Create a new collection
-router.post('/collections', isAuthenticated, collectionCtrl.createCollection);
+collectionRouter.post('/', collectionCtrl.createCollection);
 
 // Get all collections
-router.get('/collections', isAuthenticated, collectionCtrl.getAllCollections);
+collectionRouter.get('/', user_auth, collectionCtrl.getCollection);
 
 // Get a collection by name
-router.get('/collections/:name', isAuthenticated, collectionCtrl.getCollectionByName);
+collectionRouter.get('/name/:name', user_auth, collectionCtrl.getCollectionByName);
 
-// Delete a collection by name
-router.delete('/collections/:name', isAuthenticated, collectionCtrl.deleteCollectionByName);
+//Get collection by id 
+collectionRouter.get('/:id', user_auth, collectionCtrl.getCollectionById);
+
+// Delete a collection by id
+collectionRouter.delete('/:id', user_auth, collectionCtrl.removeCollection);
 
 // Add a recipe to a collection
-router.post('/collections/:name/recipe', isAuthenticated, collectionCtrl.addRecipeToCollection);
+collectionRouter.post('/add-recipe', user_auth, collectionCtrl.addRecipe);
 
 // Remove recipe
-router.delete('/collections/:name/recipe/:id', isAuthenticated, collectionCtrl.removeRecipeFromCollection);
+collectionRouter.delete('/remove-recipe', user_auth, collectionCtrl.removeRecipe);
 
 // Get all recipes in a collection
-router.get('/collections/:name/recipes', isAuthenticated, collectionCtrl.getAllRecipesInCollection);
+collectionRouter.get('/:collection_id/recipes', user_auth, collectionCtrl.getRecipesInCollection);
 
-module.exports = router;
+//Update collection
+collectionRouter.post('/:id/update', user_auth, collectionCtrl.updateCollection)
+
+module.exports = collectionRouter;
