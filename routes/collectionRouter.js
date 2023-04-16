@@ -15,19 +15,20 @@ collectionRouter.get('/name/:name', user_auth, collectionCtrl.getCollectionByNam
 //Get collection by id 
 collectionRouter.get('/:id', user_auth, collectionCtrl.getCollectionById);
 
+// Remove recipe
+collectionRouter.delete('/remove-recipe', user_auth, collectionCtrl.removeRecipe);
+
 // Delete a collection by id
 collectionRouter.delete('/:id', user_auth, collectionCtrl.removeCollection);
 
 // Add a recipe to a collection
 collectionRouter.post('/add-recipe', user_auth, collectionCtrl.addRecipe);
 
-// Remove recipe
-collectionRouter.delete('/remove-recipe', user_auth, collectionCtrl.removeRecipe);
 
 // Get all recipes in a collection
 collectionRouter.get('/:collection_id/recipes', user_auth, collectionCtrl.getRecipesInCollection);
 
 //Update collection
-collectionRouter.post('/:id/update', user_auth, collectionCtrl.updateCollection)
+collectionRouter.put('/:id', user_auth, collectionCtrl.updateCollection)
 
 module.exports = collectionRouter;
