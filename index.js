@@ -20,6 +20,8 @@ app.use(express.json())
 
 //Routers for all functions
 app.use('/', require('./routes/userRouter'))
+app.use('/recipe', require('./routes/recipeRouter'))
+app.use('/collection', require('./routes/collectionRouter'))
 app.use('/', require('./routes/ingredientRouter'))
 
 app.get('/', function (req, res) {
