@@ -10,7 +10,6 @@ recipeRouter.post('/', recipeCtrl.createRecipe)
 //Get recipe by id
 recipeRouter.get('/:recipe_id', recipeCtrl.get)
 
-
 //Get recipe by name
 recipeRouter.get('/name/:word', recipeCtrl.getByName)
 
