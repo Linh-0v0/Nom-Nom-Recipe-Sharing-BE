@@ -23,6 +23,8 @@ app.use('/', require('./routes/userRouter'))
 app.use('/recipe', require('./routes/recipeRouter'))
 app.use('/collection', require('./routes/collectionRouter'))
 app.use('/', require('./routes/ingredientRouter'))
+app.use('/recipe', require('./routes/reviewRouter'))
+
 
 app.get('/', function (req, res) {
   res.send('Hello World')
