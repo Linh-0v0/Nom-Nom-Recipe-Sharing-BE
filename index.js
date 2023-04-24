@@ -6,11 +6,13 @@ const cookieParser = require('cookie-parser')
 
 require('dotenv').config()
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true
+  })
+)
 
 app.use(cors())
 app.use(cookieParser())
@@ -24,7 +26,6 @@ app.use('/recipe', require('./routes/recipeRouter'))
 app.use('/collection', require('./routes/collectionRouter'))
 app.use('/', require('./routes/ingredientRouter'))
 app.use('/recipe', require('./routes/reviewRouter'))
-
 
 app.get('/', function (req, res) {
   res.send('Hello World')
