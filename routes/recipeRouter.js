@@ -21,9 +21,10 @@ recipeRouter.get('/user/:author_id', recipeCtrl.getByUser)
 //Update recipe
 recipeRouter.put('/:recipe_id', user_auth, recipeCtrl.updateRecipe)
 
-// recipeRouter.post('/', recipeCtrl.insert)
+//Delete recipe
+recipeRouter.delete('/:recipe_id', user_auth, recipeCtrl.deleteRecipe)
 
-// recipeRouter.delete('/:recipe_id', recipeCtrl.delete)
+//Get recipe base on user dietary
 recipeRouter.get(
   '/recommendations/:userId',
   recipeCtrl.recipeRecBasedUserDietary
