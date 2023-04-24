@@ -83,25 +83,22 @@ recipeCtrl.getAll = async (req, res) => {
     const recipes = await db.any('SELECT * FROM RECIPE')
     console.log('Retrieved all recipes')
     res.json(recipes)
-  } catch (error) {
-    console.error('Error retrieving recipes', error)
-    res.status(500).json({ message: 'Error retrieving recipes' })
+  } catch (err) {
+    console.error('Error retrieving recipes', err.message)
+    res.sendStatus(500)
   }
 }
 
 //Fuction get 1 recipe by id
 recipeCtrl.get = async (req, res) => {
-  const id = req.params.recipe_id
-
-  try {
-    const recipe = await db.one('SELECT * FROM recipe WHERE recipe_id = $1', [
-      id
-    ])
-    console.log(`Retrieved recipe with ID ${id}`)
-    res.json(recipe)
-  } catch (error) {
-    console.error('Error retrieving recipe', error)
-    res.status(500).json({ message: 'Error retrieving recipe' })
+  const { recipe_id } = req.params
+  const recipe = await db.one(`SELECT * FROM recipe WHERE recipe_id = $1`, [
+    recipe_id
+  ])
+  if (recipe) {
+    res.status(200).json(recipe)
+  } else {
+    res.status(404).send('Recipe not found')
   }
 }
 
@@ -192,6 +189,55 @@ recipeCtrl.deleteRecipe = async (req, res) => {
   } catch (error) {
     console.error('Error deleting recipe:', error)
     res.status(500).json({ message: 'Error deleting recipe' })
+  }
+
+  try {
+    await db.none(`DELETE FROM recipe WHERE recipe_id = $1`, [recipe_id])
+    console.log(`Deleted recipe with recipe_id ${recipe_id}`)
+    res.sendStatus(204)
+  } catch (err) {
+    console.error(
+      `Error deleting recipe with recipe_id ${recipe_id}:`,
+      err.message
+    )
+    res.sendStatus(500)
+  }
+}
+
+recipeCtrl.recipeRecBasedUserDietary = async (req, res) => {
+  try {
+    const { userId } = req.params
+    const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [
+      userId
+    ])
+    if (!user) {
+      return res.status(400).send('Invalid user email.')
+    }
+
+    // Retrieve the user's dietary preferences from the dietary_preference table
+    const userDietaryPreferences = await db.manyOrNone(
+      'SELECT dietary_preference_name FROM user_dietary_preferences WHERE user_id = $1',
+      [userId]
+    )
+
+    // Retrieve recipes that match the user's dietary preferences
+    const recommendedRecipes = await db.any(
+      `
+      SELECT r.*
+      FROM recipe r
+      JOIN recipe_dietary rd ON r.recipe_id = rd.recipe_id
+      JOIN user_dietary_preferences udp ON rd.dietary_pref = udp.dietary_preference_name
+      WHERE udp.user_id = $1
+    `,
+      [userId]
+    )
+
+    res.status(200).json({
+      message: `Recipe recommendations for user ${userId}`,
+      data: recommendedRecipes
+    })
+  } catch (error) {
+    res.status(500).send({ msg: error.message })
   }
 }
 
