@@ -23,15 +23,15 @@ ingredientCtrl.insert = async (req, res) => {
     vitamin_e,
     vitamin_k,
     potassium,
-    calcium, 
+    calcium,
     iron
   } = req.body
 
   await db
     .none(
       `
-  INSERT INTO ingredients(ing_name, quantity, unit_name, calories, carb, protein, fat, sugar, sodium, fiber, cholesterol, mineral, vitamin_a, vitamin_b12, vitamin_b6, vitamin_c, vitamin_d, vitamin_e, vitamin_k, potassium, calcium, iron)
-  VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+  INSERT INTO ingredients(ing_name, quantity, unit_name, calories, carb, protein, fat, sugar, sodium, fiber, cholesterol,vitamin_a, vitamin_b12, vitamin_b6, vitamin_c, vitamin_d, vitamin_e, vitamin_k, potassium, calcium, iron)
+  VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
 `,
       [
         ing_name,
@@ -53,24 +53,23 @@ ingredientCtrl.insert = async (req, res) => {
         vitamin_e,
         vitamin_k,
         potassium,
-        calcium, 
+        calcium,
         iron
       ]
     )
     .then(() => {
-      console.log('New ingredient added successfully')
+      res.status(200).json({ msg: 'Add successfully.' })
     })
     .catch(error => {
-      console.log('Error adding new ingredient', error)
+      res.status(500).json({ msg: error })
     })
 }
 
 ingredientCtrl.get = async (req, res) => {
   const { ingredientId } = req.params
-  const ingredient = await db.one(
-    `SELECT * FROM ingredients WHERE id = $1`,
-    [ingredientId]
-  )
+  const ingredient = await db.one(`SELECT * FROM ingredients WHERE id = $1`, [
+    ingredientId
+  ])
   if (ingredient) {
     res.status(200).json(ingredient)
   } else {
@@ -79,9 +78,7 @@ ingredientCtrl.get = async (req, res) => {
 }
 
 ingredientCtrl.getAll = async (req, res) => {
-  const ingredient = await db.manyOrNone(
-    `SELECT * FROM ingredients`
-  )
+  const ingredient = await db.manyOrNone(`SELECT * FROM ingredients`)
   if (ingredient) {
     res.status(200).json(ingredient)
   } else {
@@ -111,12 +108,12 @@ ingredientCtrl.update = async (req, res) => {
     vitamin_e,
     vitamin_k,
     potassium,
-    calcium, 
+    calcium,
     iron
   } = req.body
 
   try {
-    const result = await db.result(
+    await db.result(
       `UPDATE ingredients SET
       ing_name = $1,
       quantity = $2,
@@ -160,16 +157,15 @@ ingredientCtrl.update = async (req, res) => {
         vitamin_e,
         vitamin_k,
         potassium,
-        calcium, 
+        calcium,
         iron,
         ingredientId
       ]
     )
 
-    res.json({ success: 'Update ingredient successfully.' })
+    res.status(200).json({ success: 'Update ingredient successfully.' })
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Unable to update ingredient' })
+    res.status(500).json({ msg: err })
   }
 }
 
@@ -180,10 +176,10 @@ ingredientCtrl.delete = async (req, res) => {
       ingredientId
     ])
     //check boolean if the row is deleted
-    return result.rowCount === 1
+    if (result.rowCount === 1)
+      res.status(200).json({ msg: 'Delete Successfully' })
   } catch (err) {
-    console.log('Error deleting ingredient:', err.message)
-    return false
+    res.status(500).json({ msg: err })
   }
 }
 

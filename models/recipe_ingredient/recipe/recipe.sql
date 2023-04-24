@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS recipe (
   description TEXT NOT NULL
 );
 
+ALTER SEQUENCE recipe_id_seq RESTART WITH 9;
+
 INSERT INTO
   recipe (
     author_id,

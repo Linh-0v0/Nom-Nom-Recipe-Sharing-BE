@@ -4,10 +4,10 @@ const Ingredient = require('../controllers/ingredientCtrl')
 //.Router(): telling app to use expressJS to req,res http
 const router = require('express').Router()
 
-router.get('/ingredient/create', Ingredient.insert)
-router.get('/ingredient/get/:ingredientId', Ingredient.get)
-router.get('/ingredient/get-all', Ingredient.getAll)
-router.get('/ingredient/update/:ingredientId', Ingredient.update)
-router.get('/ingredient/delete/:ingredientId', Ingredient.delete)
+router.post('/create', Ingredient.insert)
+router.get('/get/:ingredientId', Ingredient.get)
+router.get('/get-all', Ingredient.getAll)
+router.patch('/update/:ingredientId', Ingredient.update)
+router.delete('/delete/:ingredientId', Ingredient.delete)
 
 module.exports = router
