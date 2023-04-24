@@ -214,12 +214,6 @@ recipeCtrl.recipeRecBasedUserDietary = async (req, res) => {
       return res.status(400).send('Invalid user email.')
     }
 
-    // Retrieve the user's dietary preferences from the dietary_preference table
-    const userDietaryPreferences = await db.manyOrNone(
-      'SELECT dietary_preference_name FROM user_dietary_preferences WHERE user_id = $1',
-      [userId]
-    )
-
     // Retrieve recipes that match the user's dietary preferences
     const recommendedRecipes = await db.any(
       `
@@ -240,5 +234,38 @@ recipeCtrl.recipeRecBasedUserDietary = async (req, res) => {
     res.status(500).send({ msg: error.message })
   }
 }
+
+recipeCtrl.recipeRecBasedUserCountry = async (req, res) => {
+  try {
+    const { userId } = req.params
+    const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [
+      userId
+    ])
+    if (!user) {
+      return res.status(400).send('Invalid user email.')
+    }
+
+    // Retrieve recipes that match the user's dietary preferences
+    const recommendedRecipes = await db.any(
+      `
+      SELECT r.*
+      FROM recipe r
+      JOIN recipe_country rc ON r.recipe_id = rc.recipe_id
+      JOIN user_country_preferences ucp ON rc.country_pref_id = ucp.country_preference_id
+      WHERE ucp.user_id = $1
+    `,
+      [userId]
+    )
+
+    res.status(200).json({
+      message: `Recipe recommendations for user ${userId}`,
+      data: recommendedRecipes
+    })
+  } catch (error) {
+    res.status(500).send({ msg: error.message })
+  }
+}
+
+
 
 module.exports = recipeCtrl
