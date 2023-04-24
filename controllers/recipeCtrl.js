@@ -139,7 +139,6 @@ recipeCtrl.updateRecipe = async (req, res) => {
 
     res.status(200).json({ message: 'Recipe updated' })
   } catch (error) {
-    console.error('Error updating recipe:', error)
     res.status(500).json({ message: 'Error updating recipe' })
   }
 }
@@ -266,6 +265,18 @@ recipeCtrl.recipeRecBasedUserCountry = async (req, res) => {
   }
 }
 
+recipeCtrl.insertIngredient = async (req, res) => {
+  try {
+    const { recipeId, ingredientId, quantity, unit_name } = req.body
 
+    const result = await db.result(
+      'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit_name) VALUES ($1, $2, $3, $4)',
+      [recipeId, ingredientId, quantity, unit_name]
+    )
+    res.status(200).json({ msg: "Insert ingredient to recipe successfully." })
+  } catch (err) {
+    res.status(500).json({ msg: err })
+  }
+}
 
 module.exports = recipeCtrl

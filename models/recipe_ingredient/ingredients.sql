@@ -22,13 +22,8 @@ CREATE TABLE IF NOT EXISTS ingredients (
   calcium DECIMAL(10,2) NULL,
   iron DECIMAL(10,2) NULL
 );
--- Insert sample ingredients
--- INSERT INTO ingredients (ing_name, quantity, unit_name, calories)
--- VALUES ('Flour', 500, 'grams', 1500),
---        ('Sugar', 100, 'grams', 400),
---        ('Salt', 5, 'grams', 0),
---        ('Water', 250, 'milliliters', 0)
--- ON CONFLICT DO NOTHING;
+
+ALTER SEQUENCE ingredients_id_seq RESTART WITH 1088;
 
 INSERT INTO ingredients(id,ing_name,quantity,unit_name,calories,carb,protein,fat,sugar,sodium,fiber,cholesterol,vitamin_a,vitamin_b12,vitamin_b6,vitamin_c,vitamin_d,vitamin_e,vitamin_k,potassium,calcium,iron) VALUES
  (1,'Cornstarch',100,'grams',381,91.27,0.26,0.1,0,9,0.9,0,'0',0,0,0,0,0,0,3,2,0.47)

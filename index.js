@@ -22,7 +22,9 @@ app.use(express.json())
 app.use('/', require('./routes/userRouter'))
 app.use('/recipe', require('./routes/recipeRouter'))
 app.use('/collection', require('./routes/collectionRouter'))
-app.use('/', require('./routes/ingredientRouter'))
+app.use('/ingredient', require('./routes/ingredientRouter'))
+app.use('/country', require('./routes/countryRouter'))
+app.use('/dietary', require('./routes/dietaryRouter'))
 
 app.get('/', function (req, res) {
   res.send('Hello World')

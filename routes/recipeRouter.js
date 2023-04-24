@@ -34,5 +34,9 @@ recipeRouter.get(
   recipeCtrl.recipeRecBasedUserCountry
 )
 
+recipeRouter.post(
+  '/insert-ingredient', recipeCtrl.insertIngredient
+)
+
 
 module.exports = recipeRouter

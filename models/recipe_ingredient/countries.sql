@@ -1,7 +1,9 @@
-CREATE TABLE IF NOT EXISTS countries (
+CREATE TABLE countries (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL
+  name VARCHAR(255)
 );
+
+CREATE INDEX ON countries (name);
 
 INSERT INTO
   countries (name)
@@ -168,4 +170,6 @@ VALUES
   ('Somalia'),
   ('South Africa'),
   ('South Korea'),
-  ('South Sudan') ON CONFLICT DO NOTHING;
+  ('South Sudan') 
+  ORDER BY name ASC
+  ON CONFLICT DO NOTHING;
