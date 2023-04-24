@@ -121,12 +121,12 @@ userCtrl.logout = async (req, res) => {
 
 userCtrl.delete = async (req, res) => {
   try {
-    const {id} = req.params
+    const { id } = req.params
     const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [id])
     if (!user) {
       return res.status(404).json({ error: 'User not found' })
     }
-    
+
     await db.oneOrNone('DELETE FROM users WHERE id = $1', [id])
     return res.status(200).json({ msg: 'User deleted' })
   } catch (error) {
@@ -222,7 +222,6 @@ userCtrl.resetPassword = async (req, res) => {
     const { resetToken, userId } = req.params
     const { password } = req.body
 
-    //Check if reset_token is in the database
     const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [
       userId
     ])
@@ -242,6 +241,247 @@ userCtrl.resetPassword = async (req, res) => {
   } catch (err) {
     return res.status(500).json({ msg: err.message })
   }
+}
+
+/* Dietary_Preference & Country_Preference*/
+userCtrl.insertDietaryPreference = async (req, res) => {
+  try {
+    const { userId } = req.params
+    const { dietaryPreference } = req.body //can be array: [Gluten, Vegan] <- dietaryName
+
+    const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [
+      userId
+    ])
+    if (!user) {
+      return res.status(400).send('Invalid user email.')
+    }
+
+    for (const preference of dietaryPreference) {
+      const query = `INSERT INTO user_dietary_preferences(user_id, dietary_preference_name) VALUES ($1, $2) ON CONFLICT DO NOTHING`
+      await db.none(query, [userId, preference])
+    }
+
+    res.status(200).json('Dietary preferences saved successfully')
+  } catch (err) {
+    return res.status(500).json({ msg: err.message })
+  }
+}
+
+userCtrl.updateDietaryPreference = async (req, res) => {
+  const { userId } = req.params
+  const { dietaryPreference } = req.body //can be array: [Gluten, Vegan] <- dietaryName
+
+  const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [userId])
+  if (!user) {
+    return res.status(400).send('Invalid user email.')
+  }
+  // create an empty array to store promises for updating each dietary preference name
+  const promises = []
+
+  // retrieve the existing dietaryPreferenceName values for the user from the database
+  db.any(
+    'SELECT dietary_preference_name FROM user_dietary_preferences WHERE user_id = $1',
+    userId
+  )
+    .then(existingDietaryPreferences => {
+      const existingDietaryPreferenceNames = existingDietaryPreferences.map(
+        pref => pref.dietary_preference_name
+      )
+
+      // loop through the new dietaryPreferenceName array
+      for (let i = 0; i < dietaryPreference.length; i++) {
+        const name = dietaryPreference[i]
+
+        // check if the new name already exists in the database
+        if (existingDietaryPreferenceNames.includes(name)) {
+          // if it does, remove it from the existing names array to prevent it from being deleted
+          existingDietaryPreferenceNames.splice(
+            existingDietaryPreferenceNames.indexOf(name),
+            1
+          )
+        } else {
+          // if it doesn't, generate the insert query for this name
+          const insertQuery = `INSERT INTO user_dietary_preferences (user_id, dietary_preference_name) VALUES ($1, $2)`
+          const insertValues = [userId, name]
+
+          // add the promise for this insert to the promises array
+          promises.push(db.none(insertQuery, insertValues))
+        }
+
+        // generate the update query string for this dietary preference name
+        const updateQuery = `UPDATE user_dietary_preferences SET dietary_preference_name = $1 WHERE user_id = $2 AND dietary_preference_name = $3`
+        const updateValues = [name, userId, name]
+
+        // add the promise for this update to the promises array
+        promises.push(db.none(updateQuery, updateValues))
+      }
+
+      // generate the delete query strings for the remaining existing dietary preference names
+      const deleteQueries = existingDietaryPreferenceNames.map(name => ({
+        query: `DELETE FROM user_dietary_preferences WHERE user_id = $1 AND dietary_preference_name = $2`,
+        values: [userId, name]
+      }))
+
+      // add the promises for the delete queries to the promises array
+      deleteQueries.forEach(deleteQuery => {
+        promises.push(db.none(deleteQuery.query, deleteQuery.values))
+      })
+
+      // execute all of the queries using Promise.all
+      Promise.all(promises)
+        .then(() => {
+          console.log('User dietary preferences updated successfully')
+          res.status(200).send('User dietary preferences updated successfully')
+        })
+        .catch(error => {
+          console.error(error)
+          res.status(500).send('Internal server error')
+        })
+    })
+    .catch(error => {
+      console.error(error)
+      res.status(500).send('Internal server error')
+    })
+}
+
+userCtrl.getDietaryPreference = async (req, res) => {
+  try {
+    const { userId } = req.params
+    const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [
+      userId
+    ])
+    if (!user) {
+      return res.status(400).send('Invalid user email.')
+    }
+    const userDietaryPref = await db.manyOrNone(
+      'SELECT dietary_preference_name FROM user_dietary_preferences WHERE user_id = $1',
+      userId
+    )
+    res.status(200).json({ msg: userDietaryPref })
+  } catch (err) {
+    return res.status(500).json({ msg: err.message })
+  }
+}
+
+userCtrl.getCountryPreference = async (req, res) => {
+  try {
+    const { userId } = req.params
+    const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [
+      userId
+    ])
+    if (!user) {
+      return res.status(400).send('Invalid user email.')
+    }
+    const userCountryPref = await db.manyOrNone(
+      'SELECT country_preference_id FROM user_country_preferences WHERE user_id = $1',
+      userId
+    )
+    res.status(200).json({ msg: userCountryPref })
+  } catch (err) {
+    return res.status(500).json({ msg: err.message })
+  }
+}
+
+userCtrl.insertCountryPreference = async (req, res) => {
+  try {
+    const { userId } = req.params
+    const { dietaryPreference } = req.body //can be array: [Gluten, Vegan] <- dietaryName
+
+    const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [
+      userId
+    ])
+    if (!user) {
+      return res.status(400).send('Invalid user email.')
+    }
+
+    for (const preference of dietaryPreference) {
+      const query = `INSERT INTO user_country_preferences(user_id, dietary_preference_name) VALUES ($1, $2) ON CONFLICT DO NOTHING`
+      await db.none(query, [userId, preference])
+    }
+
+    res.status(200).json('Country preferences saved successfully')
+  } catch (err) {
+    return res.status(500).json({ msg: err.message })
+  }
+}
+
+userCtrl.updateCountryPreference = async (req, res) => {
+  const { userId } = req.params
+  const { countryPreference } = req.body // can be an array: [USA, Canada, Mexico] <- country names
+
+  const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [userId])
+
+  if (!user) {
+    return res.status(400).send('Invalid user email.')
+  }
+
+  // create an empty array to store promises for updating each country preference name
+  const promises = []
+
+  // retrieve the existing countryPreferenceName values for the user from the database
+  db.any(
+    'SELECT country_preference_id FROM user_country_preferences WHERE user_id = $1',
+    userId
+  )
+    .then(existingCountryPreferences => {
+      const existingCountryPreferenceNames = existingCountryPreferences.map(
+        pref => pref.country_preference_id
+      )
+
+      // loop through the new countryPreferenceName array
+      for (let i = 0; i < countryPreference.length; i++) {
+        const name = countryPreference[i]
+
+        // check if the new name already exists in the database
+        if (existingCountryPreferenceNames.includes(name)) {
+          // if it does, remove it from the existing names array to prevent it from being deleted
+          existingCountryPreferenceNames.splice(
+            existingCountryPreferenceNames.indexOf(name),
+            1
+          )
+        } else {
+          // if it doesn't, generate the insert query for this name
+          const insertQuery = `INSERT INTO user_country_preferences (user_id, country_preference_id) VALUES ($1, $2)`
+          const insertValues = [userId, name]
+
+          // add the promise for this insert to the promises array
+          promises.push(db.none(insertQuery, insertValues))
+        }
+
+        // generate the update query string for this country preference name
+        const updateQuery = `UPDATE user_country_preferences SET country_preference_id = $1 WHERE user_id = $2 AND country_preference_id = $3`
+        const updateValues = [name, userId, name]
+
+        // add the promise for this update to the promises array
+        promises.push(db.none(updateQuery, updateValues))
+      }
+
+      // generate the delete query strings for the remaining existing country preference names
+      const deleteQueries = existingCountryPreferenceNames.map(name => ({
+        query: `DELETE FROM user_country_preferences WHERE user_id = $1 AND country_preference_id = $2`,
+        values: [userId, name]
+      }))
+
+      // add the promises for the delete queries to the promises array
+      deleteQueries.forEach(deleteQuery => {
+        promises.push(db.none(deleteQuery.query, deleteQuery.values))
+      })
+
+      // execute all of the queries using Promise.all
+      Promise.all(promises)
+        .then(() => {
+          console.log('User country preferences updated successfully')
+          res.status(200).send('User country preferences updated successfully')
+        })
+        .catch(error => {
+          console.error(error)
+          res.status(500).send('Internal server error')
+        })
+    })
+    .catch(error => {
+      console.error(error)
+      res.status(500).send('Internal server error')
+    })
 }
 
 module.exports = userCtrl
