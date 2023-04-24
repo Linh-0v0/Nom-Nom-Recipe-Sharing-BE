@@ -6,3 +6,9 @@ CREATE TABLE IF NOT EXISTS users (
   reset_token VARCHAR(255) NULL,
   reset_token_expiration TIMESTAMPTZ NULL
 );
+
+INSERT INTO users (id, email, password)
+VALUES
+(1, 'suplohong271001@gmail.com', 'password123'),
+(2, 'example@gmail.com', 'password12233')
+ON CONFLICT DO NOTHING;
