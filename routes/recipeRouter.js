@@ -1,8 +1,7 @@
-const express = require('express')
 const recipeCtrl = require('../controllers/recipeCtrl')
 const user_auth = require('../middleware/user_auth')
 
-const recipeRouter = express.Router()
+const recipeRouter = require('express').Router()
 
 //Create new recipe
 recipeRouter.post('/', recipeCtrl.createRecipe)
@@ -22,7 +21,12 @@ recipeRouter.get('/user/:author_id', recipeCtrl.getByUser)
 //Update recipe
 recipeRouter.put('/:recipe_id', user_auth, recipeCtrl.updateRecipe)
 
-//Delete recipe
-recipeRouter.delete('/:recipe_id', user_auth, recipeCtrl.deleteRecipe)
+// recipeRouter.post('/', recipeCtrl.insert)
+
+// recipeRouter.delete('/:recipe_id', recipeCtrl.delete)
+recipeRouter.get(
+  '/recommendations/:userId',
+  recipeCtrl.recipeRecBasedUserDietary
+)
 
 module.exports = recipeRouter

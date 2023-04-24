@@ -18,7 +18,6 @@ router.post('/auth/register', User.register)
 router.post('/auth/login', User.login)
 router.get('/auth/logout', User.logout)
 router.get('/auth/refresh_token', User.refreshToken)
-
 router.post('/forgot-password', forgotPassword)
 router.post(
   '/reset-password/:resetToken/:userId',
@@ -26,8 +25,9 @@ router.post(
   User.resetPassword
 )
 
+router.patch('/user/update-profile', User.updateUser)
 router.get('/user/my-profile', user_auth, User.getUser)
-// router.get("/users", User.getAllUsers);
+router.get("/users", User.getAllUsers);
 
 //allow users to grant permission to your app to access their Google account.
 router.get('/auth/google', (req, res) => {
@@ -39,7 +39,14 @@ router.get('/auth/google', (req, res) => {
 //Google will redirect the user to this route after they grant permission to your app
 // router.get('/auth/google/callback', googleCallBack)
 router.get('/auth/google/callback', googleCallBack)
-
 router.get('/mail-reset-pass/:email', sendPasswordResetMail)
+
+//Dietary & Country Preferences
+router.get('/get-dietary-preference/:userId', User.getDietaryPreference)
+router.post('/insert-dietary-preference/:userId', User.insertDietaryPreference)
+router.patch('/update-dietary-preference/:userId', User.updateDietaryPreference)
+router.get('/get-country-preference/:userId', User.getCountryPreference)
+router.post('/insert-country-preference/:userId', User.insertCountryPreference)
+router.patch('/update-country-preference/:userId', User.updateCountryPreference)
 
 module.exports = router
