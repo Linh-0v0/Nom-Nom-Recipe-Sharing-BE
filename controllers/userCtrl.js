@@ -385,7 +385,7 @@ userCtrl.getCountryPreference = async (req, res) => {
 userCtrl.insertCountryPreference = async (req, res) => {
   try {
     const { userId } = req.params
-    const { dietaryPreference } = req.body //can be array: [Gluten, Vegan] <- dietaryName
+    const { countryPreference } = req.body //can be array: [Gluten, Vegan] <- dietaryName
 
     const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [
       userId
@@ -394,8 +394,8 @@ userCtrl.insertCountryPreference = async (req, res) => {
       return res.status(400).send('Invalid user email.')
     }
 
-    for (const preference of dietaryPreference) {
-      const query = `INSERT INTO user_country_preferences(user_id, dietary_preference_name) VALUES ($1, $2) ON CONFLICT DO NOTHING`
+    for (const preference of countryPreference) {
+      const query = `INSERT INTO user_country_preferences(user_id, country_preference_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`
       await db.none(query, [userId, preference])
     }
 
