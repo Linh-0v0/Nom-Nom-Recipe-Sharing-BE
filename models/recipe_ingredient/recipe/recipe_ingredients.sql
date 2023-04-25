@@ -8,7 +8,11 @@ CREATE TABLE IF NOT EXISTS recipe_ingredients (
 );
 -- `The ON DELETE CASCADE` clause specifies that when a record is deleted from the `recipes` or `ingredients` table, all corresponding records in the `recipe_ingredients` table should also be deleted.
 
-ALTER SEQUENCE recipe_ingredient_id_seq RESTART WITH 16;
+-- CREATE SEQUENCE 
+CREATE SEQUENCE recipe_ingredients_seq START WITH 1 INCREMENT BY 1 NO CYCLE;
+
+--ensure that the ingredient_id column of the recipe_ingredients table is always incremented automatically with a unique value
+ALTER TABLE recipe_ingredients ALTER COLUMN ingredient_id SET DEFAULT nextval('recipe_ingredients_seq');
 
 INSERT INTO
   recipe_ingredients (recipe_id, ingredient_id, quantity, unit_name)

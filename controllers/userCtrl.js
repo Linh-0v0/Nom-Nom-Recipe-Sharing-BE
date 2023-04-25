@@ -181,7 +181,7 @@ userCtrl.getUser = async (req, res) => {
 
 userCtrl.getAllUsers = async (req, res) => {
   try {
-    const users = await db.one('SELECT * FROM users')
+    const users = await db.any('SELECT * FROM users')
     if (!users) return res.status(400).json({ msg: 'User does not exist.' })
 
     res.json(users)

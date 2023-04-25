@@ -171,5 +171,4 @@ VALUES
   ('South Africa'),
   ('South Korea'),
   ('South Sudan') 
-  ORDER BY name ASC
   ON CONFLICT DO NOTHING;

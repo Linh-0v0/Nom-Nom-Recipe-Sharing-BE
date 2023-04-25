@@ -29,7 +29,7 @@ countryCtrl.get = async (req, res) => {
 }
 
 countryCtrl.getAll = async (req, res) => {
-  const country = await db.manyOrNone(`SELECT * FROM countries`)
+  const country = await db.manyOrNone(`SELECT * FROM countries ORDER BY name ASC`)
   if (country) {
     res.status(200).json(country)
   } else {
