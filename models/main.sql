@@ -1,7 +1,6 @@
 -- THE ORDER OF CREATING TABLE MATTERS
 
 -- user_mgm
-\i models/user_mgm/users.sql
 \i models/user_mgm/google_tokens.sql
 
 -- recipe_ingredient

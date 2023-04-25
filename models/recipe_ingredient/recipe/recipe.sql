@@ -11,8 +11,10 @@ CREATE TABLE IF NOT EXISTS recipe (
   description TEXT NOT NULL
 );
 
-ALTER SEQUENCE recipe_id_seq RESTART WITH 9;
+-- CREATE SEQUENCE 
+-- CREATE SEQUENCE recipe_id_seq START WITH 1 INCREMENT BY 1 NO CYCLE;
 
+-- INSERT INTO
 INSERT INTO
   recipe (
     author_id,
@@ -87,3 +89,6 @@ VALUES
     'https://example.com/paleo-banana-bread.jpg',
     'A moist and delicious banana bread made with paleo-friendly ingredients.'
   ) ON CONFLICT DO NOTHING;
+
+-- -- START FROM ID 9
+-- ALTER SEQUENCE recipe_id_seq RESTART WITH 9;
