@@ -8,7 +8,6 @@ countryCtrl.insert = async (req, res) => {
 
     await db.none('INSERT INTO countries (name) VALUES ($1)', [countryName])
     await db.none('UPDATE countries SET id = DEFAULT WHERE id < 0') // Reset ID sequence
-    await db.none('ALTER TABLE countries ORDER BY name') // Order table by name
 
     res.status(200).json({ msg: 'Add successfully.' })
   } catch (err) {
