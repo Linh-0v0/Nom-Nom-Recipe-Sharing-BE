@@ -139,7 +139,6 @@ recipeCtrl.updateRecipe = async (req, res) => {
 
     res.status(200).json({ message: 'Recipe updated' })
   } catch (error) {
-    console.error('Error updating recipe:', error)
     res.status(500).json({ message: 'Error updating recipe' })
   }
 }
@@ -214,12 +213,6 @@ recipeCtrl.recipeRecBasedUserDietary = async (req, res) => {
       return res.status(400).send('Invalid user email.')
     }
 
-    // Retrieve the user's dietary preferences from the dietary_preference table
-    const userDietaryPreferences = await db.manyOrNone(
-      'SELECT dietary_preference_name FROM user_dietary_preferences WHERE user_id = $1',
-      [userId]
-    )
-
     // Retrieve recipes that match the user's dietary preferences
     const recommendedRecipes = await db.any(
       `
@@ -238,6 +231,51 @@ recipeCtrl.recipeRecBasedUserDietary = async (req, res) => {
     })
   } catch (error) {
     res.status(500).send({ msg: error.message })
+  }
+}
+
+recipeCtrl.recipeRecBasedUserCountry = async (req, res) => {
+  try {
+    const { userId } = req.params
+    const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [
+      userId
+    ])
+    if (!user) {
+      return res.status(400).send('Invalid user email.')
+    }
+
+    // Retrieve recipes that match the user's dietary preferences
+    const recommendedRecipes = await db.any(
+      `
+      SELECT r.*
+      FROM recipe r
+      JOIN recipe_country rc ON r.recipe_id = rc.recipe_id
+      JOIN user_country_preferences ucp ON rc.country_pref_id = ucp.country_preference_id
+      WHERE ucp.user_id = $1
+    `,
+      [userId]
+    )
+
+    res.status(200).json({
+      message: `Recipe recommendations for user ${userId}`,
+      data: recommendedRecipes
+    })
+  } catch (error) {
+    res.status(500).send({ msg: error.message })
+  }
+}
+
+recipeCtrl.insertIngredient = async (req, res) => {
+  try {
+    const { recipeId, ingredientId, quantity, unit_name } = req.body
+
+    const result = await db.result(
+      'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit_name) VALUES ($1, $2, $3, $4)',
+      [recipeId, ingredientId, quantity, unit_name]
+    )
+    res.status(200).json({ msg: "Insert ingredient to recipe successfully." })
+  } catch (err) {
+    res.status(500).json({ msg: err })
   }
 }
 

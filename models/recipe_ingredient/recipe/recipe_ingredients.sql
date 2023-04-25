@@ -1,13 +1,15 @@
 CREATE TABLE IF NOT EXISTS recipe_ingredients (
-  id SERIAL PRIMARY KEY,
+  PRIMARY KEY (recipe_id, ingredient_id),
   recipe_id INTEGER REFERENCES recipe(recipe_id) ON DELETE CASCADE,
   ingredient_id INTEGER,
   FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE,
   quantity DECIMAL(10, 2),
   unit_name varchar(30) NOT NULL REFERENCES units(unit_name) ON DELETE RESTRICT
 );
-
 -- `The ON DELETE CASCADE` clause specifies that when a record is deleted from the `recipes` or `ingredients` table, all corresponding records in the `recipe_ingredients` table should also be deleted.
+
+ALTER SEQUENCE recipe_ingredient_id_seq RESTART WITH 16;
+
 INSERT INTO
   recipe_ingredients (recipe_id, ingredient_id, quantity, unit_name)
 VALUES

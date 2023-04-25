@@ -26,8 +26,18 @@ recipeRouter.delete('/:recipe_id', user_auth, recipeCtrl.deleteRecipe)
 
 //Get recipe base on user dietary
 recipeRouter.get(
-  '/recommendations/:userId',
+  '/recommendations/dietary/:userId',
   recipeCtrl.recipeRecBasedUserDietary
 )
+
+recipeRouter.get(
+  '/recommendations/country/:userId',
+  recipeCtrl.recipeRecBasedUserCountry
+)
+
+recipeRouter.post(
+  '/insert-ingredient', recipeCtrl.insertIngredient
+)
+
 
 module.exports = recipeRouter
