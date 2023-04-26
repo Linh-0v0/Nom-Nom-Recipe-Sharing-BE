@@ -1,4 +1,4 @@
-CREATE TABLE countries (
+CREATE TABLE IF NOT EXISTS countries (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255)
 );
