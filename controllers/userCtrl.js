@@ -149,8 +149,9 @@ userCtrl.refreshToken = (req, res) => {
   // refreshToken is used to obtain accessToken.
   // accessToken is used to access user's resources.
   // refreshToken expires = user logs in again -> New refreshToken.
+  console.log(req.cookies)
   try {
-    const rf_token = req.cookies.refreshtoken
+    const rf_token = req.cookies.refreshToken
     if (!rf_token)
       return res.status(400).json({ msg: 'Please Login or Register' })
 
@@ -190,22 +191,22 @@ userCtrl.getAllUsers = async (req, res) => {
   }
 }
 
-userCtrl.updateUser = async (req, res) => {
+userCtrl.updateUserDetails = async (req, res) => {
   try {
-    const { username, email, password } = req.body
-    const user_id = req.user.id
+    const { username, password } = req.body
+    const userId = req.params
     const passwordHash = await bcrypt.hash(password, 10)
 
     // Find user by id
     const user = await db.oneOrNone('SELECT * FROM users WHERE id=$1', [
-      user_id
+      userId
     ])
     if (!user) return res.status(400).json({ msg: 'User does not exist.' })
 
     // update
     const updateUser = await db.oneOrNone(
-      'UPDATE users SET username = $1, email = $2, password = $3 WHERE id = $4',
-      [username, email, passwordHash, user_id]
+      'UPDATE users SET username = $2, password = $3 WHERE id = $1',
+      [userId, username, passwordHash]
     )
 
     // remove password from the response
@@ -240,6 +241,45 @@ userCtrl.resetPassword = async (req, res) => {
     res.send('Password has been reset')
   } catch (err) {
     return res.status(500).json({ msg: err.message })
+  }
+}
+
+userCtrl.saveAvatarImg = async (req, res) => {
+  try {
+    const userId = req.params
+    const { avatarImage } = req.body
+
+    const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [
+      userId
+    ])
+
+    if (!user) {
+      return res.status(400).send('Invalid user email.')
+    }
+
+    // generate a unique filename for the image
+    const filename = 'avatar-' + uuidv4() + '.jpg'
+
+    // upload the image file to Firestore
+    await bucket.upload(avatarImage.path, {
+      destination: 'avatars/' + filename,
+      metadata: {
+        contentType: 'image/jpeg'
+      }
+    })
+
+    // save the Firestore URL in the SQL database
+    const firestoreUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/avatars%2F${filename}?alt=media`
+
+    await db.none('UPDATE users SET avatar_url=$2 WHERE id=$1', [
+      userId,
+      firestoreUrl
+    ])
+
+    console.log("AvatarURL:", firestoreUrl)
+    res.status(200).json({ "AvatarURL": firestoreUrl })
+  } catch (err) {
+    res.status(500).json({ msg: err })
   }
 }
 

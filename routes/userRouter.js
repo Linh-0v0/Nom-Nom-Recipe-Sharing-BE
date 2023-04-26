@@ -25,7 +25,8 @@ router.post(
   User.resetPassword
 )
 
-router.patch('/user/update-profile', User.updateUser)
+router.patch('/user/update-profile/:userId', User.updateUserDetails)
+router.patch('/user/update-avatar/:userId', User.saveAvatarImg)
 router.get('/user/my-profile', user_auth, User.getUser)
 router.get("/users", User.getAllUsers);
 
