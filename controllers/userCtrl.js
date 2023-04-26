@@ -149,8 +149,9 @@ userCtrl.refreshToken = (req, res) => {
   // refreshToken is used to obtain accessToken.
   // accessToken is used to access user's resources.
   // refreshToken expires = user logs in again -> New refreshToken.
+  console.log(req.cookies)
   try {
-    const rf_token = req.cookies.refreshtoken
+    const rf_token = req.cookies.refreshToken
     if (!rf_token)
       return res.status(400).json({ msg: 'Please Login or Register' })
 
