@@ -1,44 +1,20 @@
-import { useState } from 'react'
-import { storage } from './firebase'
-import { db } from './firebase'
+const admin = require('firebase-admin');
 
-function AvatarUploader({ userId }) {
-  const [file, setFile] = useState(null)
+// initialize Firebase admin SDK
+admin.initializeApp({
+  credential: admin.credential.applicationDefault()
+});
 
-  const handleFileInputChange = event => {
-    setFile(event.target.files[0])
-  }
+// create a reference to Firestore storage
+const bucket = admin.storage().bucket();
 
-  const handleUpload = () => {
-    const storageRef = storage.ref()
-    const avatarRef = storageRef.child(`avatars/${userId}/${file.name}`)
-    const uploadTask = avatarRef.put(file)
+// generate a unique filename or ID for the image
+const filename = 'avatar-' + uuidv4() + '.jpg';
 
-    uploadTask.on(
-      'state_changed',
-      snapshot => {
-        // handle upload progress updates if needed
-      },
-      error => {
-        // handle upload errors if needed
-        console.error(error)
-      },
-      () => {
-        // handle successful upload
-        avatarRef.getDownloadURL().then(url => {
-          // save the URL to the database
-          db.collection('users').doc(userId).update({
-            avatarUrl: url
-          })
-        })
-      }
-    )
-  }
-
-  return (
-    <div>
-      <input type="file" onChange={handleFileInputChange} />
-      <button onClick={handleUpload}>Upload</button>
-    </div>
-  )
-}
+// upload the image file to Firestore
+await bucket.upload('path/to/image.jpg', {
+  destination: 'avatars/' + filename,
+  metadata: {
+    contentType: 'image/jpeg',
+  },
+});
