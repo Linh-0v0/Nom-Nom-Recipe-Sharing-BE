@@ -1,7 +1,12 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const db = require('../db')
-const { uploadBytes, ref, getDownloadURL } = require('firebase/storage')
+const {
+  uploadBytes,
+  ref,
+  getDownloadURL,
+  deleteObject
+} = require('firebase/storage')
 const { v4: uuidv4 } = require('uuid')
 const { storage } = require('../firebaseConfig')
 /* ----------------------------------------- */
@@ -287,11 +292,28 @@ userCtrl.saveAvatarImg = async (req, res) => {
     if (!user) {
       return res.status(400).send('Invalid user email.')
     }
+    const userAvatarUrl = await db.oneOrNone(
+      'SELECT avatar_url FROM users WHERE id = $1',
+      [userId]
+    )
 
+    if (userAvatarUrl) {
+      // If old avatar exists, Delete the old one on Firestore Cloud
+      const oldStorageRef = ref(storage, `${userAvatarUrl.avatar_url}`) //old avatar
+      // Delete the file
+      deleteObject(oldStorageRef)
+        .then(() => {
+          console.log('Delete the old image on Firebase Cloud successfully.')
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    }
+
+    // Save Avatar Image to the Firebase Cloud
     console.log('running save avatar', req.file)
     const storageRef = ref(storage, `/avatars/${uuidv4()}-${file.originalname}`)
-    // console.log('imageRef name:', storageRef.name)
-    // console.log('imageRef Full Path:', storageRef.fullPath)
+
     uploadBytes(storageRef, file.buffer)
 
     const firestoreUrl = storageRef.fullPath
