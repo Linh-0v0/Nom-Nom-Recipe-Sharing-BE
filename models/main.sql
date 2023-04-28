@@ -4,10 +4,10 @@
 \i models/user_mgm/google_tokens.sql
 
 -- recipe_ingredient
+\i models/recipe_ingredient/units.sql
 \i models/recipe_ingredient/countries.sql
 \i models/recipe_ingredient/dietary_pref.sql
 \i models/recipe_ingredient/ingredients.sql
-\i models/recipe_ingredient/units.sql
 
 -- recipe_ingredient/recipe
 \i models/recipe_ingredient/recipe/recipe.sql

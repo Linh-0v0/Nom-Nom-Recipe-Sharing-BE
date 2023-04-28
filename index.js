@@ -23,6 +23,7 @@ app.use('/', require('./routes/userRouter'))
 app.use('/recipe', require('./routes/recipeRouter'))
 app.use('/collection', require('./routes/collectionRouter'))
 app.use('/ingredient', require('./routes/ingredientRouter'))
+app.use('/unit', require('./routes/unitRouter'))
 app.use('/country', require('./routes/countryRouter'))
 app.use('/dietary', require('./routes/dietaryRouter'))
 
