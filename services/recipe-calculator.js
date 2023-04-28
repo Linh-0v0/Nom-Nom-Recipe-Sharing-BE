@@ -15,7 +15,6 @@ async function calculateRecipeCalories(recipeId) {
     // Calculate the total calories of the recipe based on its ingredients
     for (const ingredient of ingredients) {
       const ingredientCalories = ingredient.calories
-      const ingredientQuantity = ingredient.quantity
       console.log('ING:', ingredient.quantity)
       const quantityInGrams = convertUnitToCorrespQuantity(
         ingredient.unit_name,
@@ -24,7 +23,9 @@ async function calculateRecipeCalories(recipeId) {
       )
       console.log('quantityInGram:', quantityInGrams)
       const ingredientTotalCalories =
-        (quantityInGrams / ingredientQuantity) * ingredientCalories
+        (quantityInGrams / 100) * ingredientCalories
+      console.log('ingTotalCal:', ingredientTotalCalories)
+
       totalCalories += ingredientTotalCalories
     }
     return totalCalories
