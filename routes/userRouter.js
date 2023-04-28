@@ -9,6 +9,7 @@ const {
   getNewAccessToken,
   googleCallBack
 } = require('../controllers/google_auth')
+const { upload, storage } = require('../services/multerHandleImg')
 
 //'router': used to define routes for our application.
 //.Router(): telling app to use expressJS to req,res http
@@ -26,9 +27,14 @@ router.post(
 )
 
 router.patch('/user/update-profile/:userId', User.updateUserDetails)
-router.patch('/user/update-avatar/:userId', User.saveAvatarImg)
+router.post(
+  '/user/update-avatar/:userId',
+  upload.single('avatarImage'),
+  User.saveAvatarImg
+)
+router.get('/user/get-avatar/:userId', User.getAvatarImg)
 router.get('/user/my-profile', user_auth, User.getUser)
-router.get("/users", User.getAllUsers);
+router.get('/users', User.getAllUsers)
 
 //allow users to grant permission to your app to access their Google account.
 router.get('/auth/google', (req, res) => {

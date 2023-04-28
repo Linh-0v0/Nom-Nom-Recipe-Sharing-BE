@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS ingredients (
   id SERIAL PRIMARY KEY,
   ing_name VARCHAR(255) NOT NULL,
   quantity DECIMAL(10,2) NOT NULL,
-  unit_name varchar(30) NOT NULL ,
+  unit_name varchar(30) NOT NULL REFERENCES units(unit_name),
   calories DECIMAL(10,2) NOT NULL,
   carb DECIMAL(10,2) NULL,
   protein DECIMAL(10,2) NULL,
@@ -22,8 +22,6 @@ CREATE TABLE IF NOT EXISTS ingredients (
   calcium DECIMAL(10,2) NULL,
   iron DECIMAL(10,2) NULL
 );
-
-ALTER SEQUENCE ingredients_id_seq RESTART WITH 1088;
 
 INSERT INTO ingredients(id,ing_name,quantity,unit_name,calories,carb,protein,fat,sugar,sodium,fiber,cholesterol,vitamin_a,vitamin_b12,vitamin_b6,vitamin_c,vitamin_d,vitamin_e,vitamin_k,potassium,calcium,iron) VALUES
  (1,'Cornstarch',100,'grams',381,91.27,0.26,0.1,0,9,0.9,0,'0',0,0,0,0,0,0,3,2,0.47)
@@ -1113,3 +1111,5 @@ INSERT INTO ingredients(id,ing_name,quantity,unit_name,calories,carb,protein,fat
 ,(1085,'Ruby Red grapefruit juice blend (grapefruit',100,'grams',44,10.53,0.5,0.1,10.3,8,0.2,0,'129',0,0,49.2,0,0,0,94,10,0.14)
 ,(1086,'MORNINGSTAR FARMS Breakfast Sandwich Veggie Sausage Egg & Cheese English Muffin',100,'grams',205,18.7,14.3,9.4,1.1,639,3.8,67,'0',0.1,0.04,0,10,0,0,212,220,2.5)
 ,(1087,'Pan Dulce',100,'grams',445,66.28,8.81,16,21.86,0,1.2,0,'0',0,0,0,0,0,0,0,0,0) ON CONFLICT DO NOTHING;
+
+-- ALTER SEQUENCE ingredients_id_seq RESTART WITH 1088;

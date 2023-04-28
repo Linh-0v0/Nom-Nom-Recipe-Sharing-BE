@@ -2,7 +2,7 @@ const express = require('express')
 const session = require('express-session')
 const cors = require('cors')
 const app = express()
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser') 
 
 require('dotenv').config()
 
@@ -25,6 +25,7 @@ app.use('/', require('./routes/userRouter'))
 app.use('/recipe', require('./routes/recipeRouter'))
 app.use('/collection', require('./routes/collectionRouter'))
 app.use('/ingredient', require('./routes/ingredientRouter'))
+app.use('/unit', require('./routes/unitRouter'))
 app.use('/country', require('./routes/countryRouter'))
 app.use('/dietary', require('./routes/dietaryRouter'))
 

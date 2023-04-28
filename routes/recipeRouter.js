@@ -29,15 +29,15 @@ recipeRouter.get(
   '/recommendations/dietary/:userId',
   recipeCtrl.recipeRecBasedUserDietary
 )
-
 recipeRouter.get(
   '/recommendations/country/:userId',
   recipeCtrl.recipeRecBasedUserCountry
 )
-
 recipeRouter.post(
   '/insert-ingredient', recipeCtrl.insertIngredient
 )
+recipeRouter.get('/calories/per_serving/:recipeId', recipeCtrl.getTotalCaloriesPerServ)
+recipeRouter.get('/calories/all_servings/:recipeId', recipeCtrl.getTotalCaloriesAllServ)
 
 
 module.exports = recipeRouter

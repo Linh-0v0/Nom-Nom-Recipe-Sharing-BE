@@ -1,9 +1,11 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const db = require('../db')
-
+const { uploadBytes, ref, getDownloadURL } = require('firebase/storage')
+const { v4: uuidv4 } = require('uuid')
+const { storage } = require('../firebaseConfig')
+/* ----------------------------------------- */
 const userCtrl = {}
-
 /* USER AUTH */
 // Function to register a new user
 userCtrl.register = async (req, res) => {
@@ -198,9 +200,7 @@ userCtrl.updateUserDetails = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10)
 
     // Find user by id
-    const user = await db.oneOrNone('SELECT * FROM users WHERE id=$1', [
-      userId
-    ])
+    const user = await db.oneOrNone('SELECT * FROM users WHERE id=$1', [userId])
     if (!user) return res.status(400).json({ msg: 'User does not exist.' })
 
     // update
@@ -244,41 +244,65 @@ userCtrl.resetPassword = async (req, res) => {
   }
 }
 
-userCtrl.saveAvatarImg = async (req, res) => {
+userCtrl.getAvatarImg = async (req, res) => {
   try {
-    const userId = req.params
-    const { avatarImage } = req.body
+    const { userId } = req.params
 
     const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [
       userId
     ])
+    if (!user) {
+      return res.status(400).send('Invalid user email.')
+    }
+    const userAvatarUrl = await db.oneOrNone(
+      'SELECT avatar_url FROM users WHERE id = $1',
+      [userId]
+    )
 
+    const avatar_url = userAvatarUrl.avatar_url
+    const profile_default = '021c561a-profile-icon-default.png'
+    const storageRef = ref(
+      storage,
+      `${!avatar_url ? profile_default : avatar_url}`
+    )
+    console.log(avatar_url)
+    getDownloadURL(storageRef).then(url => {
+      console.log('Image URL:', url)
+      res.status(200).json(url)
+    })
+    console.log('imageRef Full Path:', storageRef.fullPath)
+  } catch (err) {
+    return res.status(500).json({ msg: err.message })
+  }
+}
+
+userCtrl.saveAvatarImg = async (req, res) => {
+  try {
+    const { userId } = req.params
+    const file = req.file
+
+    const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [
+      userId
+    ])
     if (!user) {
       return res.status(400).send('Invalid user email.')
     }
 
-    // generate a unique filename for the image
-    const filename = 'avatar-' + uuidv4() + '.jpg'
+    console.log('running save avatar', req.file)
+    const storageRef = ref(storage, `/avatars/${uuidv4()}-${file.originalname}`)
+    // console.log('imageRef name:', storageRef.name)
+    // console.log('imageRef Full Path:', storageRef.fullPath)
+    uploadBytes(storageRef, file.buffer)
 
-    // upload the image file to Firestore
-    await bucket.upload(avatarImage.path, {
-      destination: 'avatars/' + filename,
-      metadata: {
-        contentType: 'image/jpeg'
-      }
-    })
-
-    // save the Firestore URL in the SQL database
-    const firestoreUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/avatars%2F${filename}?alt=media`
-
+    const firestoreUrl = storageRef.fullPath
     await db.none('UPDATE users SET avatar_url=$2 WHERE id=$1', [
       userId,
       firestoreUrl
     ])
 
-    console.log("AvatarURL:", firestoreUrl)
-    res.status(200).json({ "AvatarURL": firestoreUrl })
+    res.status(200).json({ msg: 'Uploaded successfully' })
   } catch (err) {
+    console.log(err)
     res.status(500).json({ msg: err })
   }
 }
