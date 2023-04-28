@@ -280,7 +280,7 @@ recipeCtrl.insertIngredient = async (req, res) => {
   }
 }
 
-recipeCtrl.getTotalCaloriesPerServ = async (req, res) => {
+recipeCtrl.getTotalIngCaloPerRecipe = async (req, res) => {
   try {
     const { recipeId } = req.params
     const totalCalories = await calculateRecipeCalories(recipeId)
@@ -290,14 +290,17 @@ recipeCtrl.getTotalCaloriesPerServ = async (req, res) => {
   }
 }
 
-recipeCtrl.getTotalCaloriesAllServ = async (req, res) => {
+recipeCtrl.getTotalCaloriesBasedServ = async (req, res) => {
   try {
     const { recipeId } = req.params
-    const totalCaloriesPerServ = calculateRecipeCalories(recipeId)
+    const { servingSize } = req.body
+    const servingSizeNum = parseFloat(servingSize)
+    const totalCaloriesPerServ = await calculateRecipeCalories(recipeId)
 
     const recipe = await db.oneOrNone('SELECT serving_size, serving_unit FROM recipe WHERE recipe_id=$1', [recipeId])
+    console.log("------TOTALCALPerServ:", servingSizeNum)
 
-    const totalCalories = totalCaloriesPerServ*(recipe.serving_size)
+    const totalCalories = await (servingSizeNum * totalCaloriesPerServ)
 
     res.status(200).json({totalCalories})
   } catch (err) {

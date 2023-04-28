@@ -35,8 +35,8 @@ recipeRouter.get(
 recipeRouter.post(
   '/insert-ingredient', recipeCtrl.insertIngredient
 )
-recipeRouter.get('/calories/per_serving/:recipeId', recipeCtrl.getTotalCaloriesPerServ)
-recipeRouter.get('/calories/all_servings/:recipeId', recipeCtrl.getTotalCaloriesAllServ)
+recipeRouter.get('/calories/per_serving/:recipeId', recipeCtrl.getTotalIngCaloPerRecipe)
+recipeRouter.post('/calories/based_servings/:recipeId', recipeCtrl.getTotalCaloriesBasedServ)
 
 
 module.exports = recipeRouter
