@@ -295,14 +295,18 @@ recipeCtrl.getTotalCaloriesBasedServ = async (req, res) => {
     const { recipeId } = req.params
     const { servingSize } = req.body
     const servingSizeNum = parseFloat(servingSize)
+   
     const totalCaloriesPerServ = await calculateRecipeCalories(recipeId)
 
     const recipe = await db.oneOrNone('SELECT serving_size, serving_unit FROM recipe WHERE recipe_id=$1', [recipeId])
     console.log("------TOTALCALPerServ:", servingSizeNum)
+    const defaultServingSize = recipe.serving_size
+    const newServingSizeMin = Math.floor(recipe.serving_size * servingSize)
+    const newServingSizeMax = Math.ceil(recipe.serving_size * servingSize)
+    const servingUnit = recipe.serving_unit
+    const totalCalories = (servingSizeNum * totalCaloriesPerServ)
 
-    const totalCalories = await (servingSizeNum * totalCaloriesPerServ)
-
-    res.status(200).json({totalCalories})
+    res.status(200).json({defaultServingSize, newServingSizeMin, newServingSizeMax, servingUnit, totalCalories})
   } catch (err) {
     res.status(500).json({ msg: err })
   }
