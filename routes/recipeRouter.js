@@ -21,9 +21,13 @@ recipeRouter.get('/user/:author_id', recipeCtrl.getByUser)
 //Update recipe
 recipeRouter.put('/:recipe_id', user_auth, recipeCtrl.updateRecipe)
 
-// recipeRouter.post('/', recipeCtrl.insert)
+//Delete recipe
+recipeRouter.delete('/:recipe_id', user_auth, recipeCtrl.deleteRecipe)
 
-// recipeRouter.delete('/:recipe_id', recipeCtrl.delete)
+//Available ingredients
+recipeRouter.post('/search-by-ingredients', recipeCtrl.getByIngredients);
+
+//Get recipe base on user dietary
 recipeRouter.get(
   '/recommendations/dietary/:userId',
   recipeCtrl.recipeRecBasedUserDietary
@@ -43,6 +47,8 @@ recipeRouter.patch('/update-dietary/:recipeId', recipeCtrl.updateDietary)
 
 recipeRouter.get('/calories/per_serving/:recipeId', recipeCtrl.getTotalIngCaloPerRecipe)
 recipeRouter.post('/calories/based_servings/:recipeId', recipeCtrl.getTotalCaloriesBasedServ)
+
+
 
 
 module.exports = recipeRouter

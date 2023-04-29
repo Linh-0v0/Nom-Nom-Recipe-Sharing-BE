@@ -14,7 +14,7 @@
 \i models/recipe_ingredient/recipe/recipe_ingredients.sql
 \i models/recipe_ingredient/recipe/recipe_dietary.sql
 \i models/recipe_ingredient/recipe/recipe_country.sql
-
+\i models/recipe_ingredient/recipe/recipe_available_ingredients.sql
 -- recipe_ingredient/users
 \i models/recipe_ingredient/users/user_country_pref.sql
 \i models/recipe_ingredient/users/user_dietary_pref.sql
