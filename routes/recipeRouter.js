@@ -35,6 +35,12 @@ recipeRouter.get(
 recipeRouter.post(
   '/insert-ingredient', recipeCtrl.insertIngredient
 )
+recipeRouter.post(
+  '/insert-country', recipeCtrl.insertCountry
+)
+
+recipeRouter.patch('/update-dietary/:recipeId', recipeCtrl.updateDietary)
+
 recipeRouter.get('/calories/per_serving/:recipeId', recipeCtrl.getTotalIngCaloPerRecipe)
 recipeRouter.post('/calories/based_servings/:recipeId', recipeCtrl.getTotalCaloriesBasedServ)
 

@@ -274,10 +274,117 @@ recipeCtrl.insertIngredient = async (req, res) => {
       'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit_name) VALUES ($1, $2, $3, $4)',
       [recipeId, ingredientId, quantity, unit_name]
     )
-    res.status(200).json({ msg: "Insert ingredient to recipe successfully." })
+    res.status(200).json({ msg: 'Insert ingredient to recipe successfully.' })
   } catch (err) {
     res.status(500).json({ msg: err })
   }
+}
+
+recipeCtrl.insertCountry = async (req, res) => {
+  try {
+    const { recipeId, countryId } = req.body
+
+    const countryOfRecipe = await db.oneOrNone(
+      'SELECT country_pref_id FROM recipe_country WHERE recipe_id=$1',
+      [recipeId]
+    )
+    if (!countryOfRecipe) {
+      const result = await db.result(
+        'INSERT INTO recipe_country (recipe_id, country_pref_id) VALUES ($1, $2)',
+        [recipeId, countryId]
+      )
+    } else {
+      const result = await db.result(
+        'UPDATE recipe_country SET country_pref_id=$2 WHERE recipe_id=$1',
+        [recipeId, countryId]
+      )
+    }
+
+    res
+      .status(200)
+      .json({ msg: 'Insert&Update country to recipe successfully.' })
+  } catch (err) {
+    res.status(500).json({ msg: err })
+  }
+}
+
+recipeCtrl.updateDietary = async (req, res) => {
+  const { recipeId } = req.params
+  const { dietaryType } = req.body //can be array: [Gluten, Vegan] <- dietaryName
+
+  const recipe = await db.oneOrNone('SELECT * FROM recipe WHERE recipe_id = $1', [
+    recipeId
+  ])
+  if (!recipe) {
+    return res.status(400).send('Invalid recipe Id.')
+  }
+  // create an empty array to store promises for updating each dietary preference name
+  const promises = []
+
+  // retrieve the existing dietaryTypeName values for the user from the database
+  db.any(
+    'SELECT dietary_pref FROM recipe_dietary WHERE recipe_id = $1',
+    recipeId
+  )
+    .then(existingdietaryTypes => {
+      const existingdietaryTypeNames = existingdietaryTypes.map(
+        pref => pref.dietary_pref
+      )
+
+      // loop through the new dietaryTypeName array
+      for (let i = 0; i < dietaryType.length; i++) {
+        const name = dietaryType[i]
+
+        // check if the new name already exists in the database
+        if (existingdietaryTypeNames.includes(name)) {
+          // if it does, remove it from the existing names array to prevent it from being deleted
+          existingdietaryTypeNames.splice(
+            existingdietaryTypeNames.indexOf(name),
+            1
+          )
+        } else {
+          // if it doesn't, generate the insert query for this name
+          const insertQuery = `INSERT INTO recipe_dietary (recipe_id, dietary_pref) VALUES ($1, $2)`
+          const insertValues = [recipeId, name]
+
+          // add the promise for this insert to the promises array
+          promises.push(db.none(insertQuery, insertValues))
+        }
+
+        // generate the update query string for this dietary preference name
+        const updateQuery = `UPDATE recipe_dietary SET dietary_pref = $1 WHERE recipe_id = $2 AND dietary_pref = $3`
+        const updateValues = [name, recipeId, name]
+
+        // add the promise for this update to the promises array
+        promises.push(db.none(updateQuery, updateValues))
+      }
+
+      // generate the delete query strings for the remaining existing dietary preference names
+      const deleteQueries = existingdietaryTypeNames.map(name => ({
+        query: `DELETE FROM recipe_dietary WHERE recipe_id = $1 AND dietary_pref = $2`,
+        values: [recipeId, name]
+      }))
+
+      // add the promises for the delete queries to the promises array
+      deleteQueries.forEach(deleteQuery => {
+        promises.push(db.none(deleteQuery.query, deleteQuery.values))
+      })
+
+      // execute all of the queries using Promise.all
+      Promise.all(promises)
+        .then(() => {
+          console.log('Recipe Dietaries updated successfully')
+          res.status(200).send('Recipe Dietaries updated successfully')
+        })
+        .catch(error => {
+          console.error(error)
+          res.status(500).send('Internal server error')
+        })
+    })
+    .catch(error => {
+      console.error(error)
+      res.status(500).send('Internal server error')
+    })
 }
 
 recipeCtrl.getTotalIngCaloPerRecipe = async (req, res) => {
@@ -295,18 +402,28 @@ recipeCtrl.getTotalCaloriesBasedServ = async (req, res) => {
     const { recipeId } = req.params
     const { servingSize } = req.body
     const servingSizeNum = parseFloat(servingSize)
-   
+
     const totalCaloriesPerServ = await calculateRecipeCalories(recipeId)
 
-    const recipe = await db.oneOrNone('SELECT serving_size, serving_unit FROM recipe WHERE recipe_id=$1', [recipeId])
-    console.log("------TOTALCALPerServ:", servingSizeNum)
+    const recipe = await db.oneOrNone(
+      'SELECT serving_size, serving_unit FROM recipe WHERE recipe_id=$1',
+      [recipeId]
+    )
+    console.log('------TOTALCALPerServ:', servingSizeNum)
     const defaultServingSize = recipe.serving_size
     const newServingSizeMin = Math.floor(recipe.serving_size * servingSize)
     const newServingSizeMax = Math.ceil(recipe.serving_size * servingSize)
     const servingUnit = recipe.serving_unit
-    const totalCalories = (servingSizeNum * totalCaloriesPerServ)
+    const unRoundedTotalCal = servingSizeNum * totalCaloriesPerServ
+    const totalCalories = Math.ceil(unRoundedTotalCal * 100) / 100
 
-    res.status(200).json({defaultServingSize, newServingSizeMin, newServingSizeMax, servingUnit, totalCalories})
+    res.status(200).json({
+      defaultServingSize,
+      newServingSizeMin,
+      newServingSizeMax,
+      servingUnit,
+      totalCalories
+    })
   } catch (err) {
     res.status(500).json({ msg: err })
   }
