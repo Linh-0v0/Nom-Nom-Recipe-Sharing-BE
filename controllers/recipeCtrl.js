@@ -1,4 +1,5 @@
 const db = require('../db')
+
 const user_auth = require('../middleware/user_auth')
 const { calculateRecipeCalories } = require('../services/recipe-calculator')
 const recipeCtrl = {}
@@ -274,7 +275,7 @@ recipeCtrl.insertIngredient = async (req, res) => {
       'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit_name) VALUES ($1, $2, $3, $4)',
       [recipeId, ingredientId, quantity, unit_name]
     )
-    res.status(200).json({ msg: "Insert ingredient to recipe successfully." })
+    res.status(200).json({ msg: 'Insert ingredient to recipe successfully.' })
   } catch (err) {
     res.status(500).json({ msg: err })
   }
@@ -309,6 +310,22 @@ recipeCtrl.getTotalCaloriesBasedServ = async (req, res) => {
     res.status(200).json({defaultServingSize, newServingSizeMin, newServingSizeMax, servingUnit, totalCalories})
   } catch (err) {
     res.status(500).json({ msg: err })
+  }
+}
+
+recipeCtrl.getByIngredients = async (req, res) => {
+  try {
+    const client = await db.connect()
+    const ingredients = req.body.ingredients
+    const result = await client.query(
+      'SELECT * FROM find_recipes_with_ingredients($1)',
+      [ingredients]
+    )
+    console.log(result) // Log the result object to the console
+    res.status(200).json(result)
+  } catch (err) {
+    console.error(err)
+    res.status(500).send('Error retrieving recipes')
   }
 }
 
