@@ -281,6 +281,20 @@ recipeCtrl.insertIngredient = async (req, res) => {
   }
 }
 
+recipeCtrl.deleteIngredient = async (req, res) => {
+  const { recipeId, ingredientId } = req.params
+  try {
+    const result = await db.result('DELETE FROM recipe_ingredients WHERE recipe_id = $1 AND ingredient_id=$2', [
+      recipeId, ingredientId
+    ])
+    //check boolean if the row is deleted
+    if (result.rowCount === 1)
+      res.status(200).json({ msg: 'Delete Successfully' })
+  } catch (err) {
+    res.status(500).json({ msg: err })
+  }
+}
+
 recipeCtrl.insertCountry = async (req, res) => {
   try {
     const { recipeId, countryId } = req.body
