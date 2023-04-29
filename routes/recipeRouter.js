@@ -24,6 +24,9 @@ recipeRouter.put('/:recipe_id', user_auth, recipeCtrl.updateRecipe)
 //Delete recipe
 recipeRouter.delete('/:recipe_id', user_auth, recipeCtrl.deleteRecipe)
 
+//Available ingredients
+recipeRouter.post('/search-by-ingredients', recipeCtrl.getByIngredients);
+
 //Get recipe base on user dietary
 recipeRouter.get(
   '/recommendations/dietary/:userId',
@@ -38,6 +41,8 @@ recipeRouter.post(
 )
 recipeRouter.get('/calories/per_serving/:recipeId', recipeCtrl.getTotalCaloriesPerServ)
 recipeRouter.get('/calories/all_servings/:recipeId', recipeCtrl.getTotalCaloriesAllServ)
+
+
 
 
 module.exports = recipeRouter
