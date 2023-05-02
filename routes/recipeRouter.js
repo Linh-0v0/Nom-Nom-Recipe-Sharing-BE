@@ -54,7 +54,7 @@ recipeRouter.get('/calories/per_serving/:recipeId', recipeCtrl.getTotalIngCaloPe
 // Calculate Recipe's Calories based on the ServingInput got from User
 recipeRouter.post('/calories/based_servings/:recipeId', recipeCtrl.getTotalCaloriesBasedServ)
 
-
+recipeRouter.get('/nutritions/total-nutrition-facts/:recipeId', recipeCtrl.getTotalNutrtionOfRecipe)
 
 
 module.exports = recipeRouter

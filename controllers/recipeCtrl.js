@@ -1,7 +1,10 @@
 const db = require('../db')
 
 const user_auth = require('../middleware/user_auth')
-const { calculateRecipeCalories } = require('../services/recipe-calculator')
+const {
+  calculateRecipeCalories,
+  calNutritionFactTotalOfEach
+} = require('../services/recipe-calculator')
 const recipeCtrl = {}
 
 //Function insert recipe
@@ -284,9 +287,10 @@ recipeCtrl.insertIngredient = async (req, res) => {
 recipeCtrl.deleteIngredient = async (req, res) => {
   const { recipeId, ingredientId } = req.params
   try {
-    const result = await db.result('DELETE FROM recipe_ingredients WHERE recipe_id = $1 AND ingredient_id=$2', [
-      recipeId, ingredientId
-    ])
+    const result = await db.result(
+      'DELETE FROM recipe_ingredients WHERE recipe_id = $1 AND ingredient_id=$2',
+      [recipeId, ingredientId]
+    )
     //check boolean if the row is deleted
     if (result.rowCount === 1)
       res.status(200).json({ msg: 'Delete Successfully' })
@@ -327,9 +331,10 @@ recipeCtrl.updateDietary = async (req, res) => {
   const { recipeId } = req.params
   const { dietaryType } = req.body //can be array: [Gluten, Vegan] <- dietaryName
 
-  const recipe = await db.oneOrNone('SELECT * FROM recipe WHERE recipe_id = $1', [
-    recipeId
-  ])
+  const recipe = await db.oneOrNone(
+    'SELECT * FROM recipe WHERE recipe_id = $1',
+    [recipeId]
+  )
   if (!recipe) {
     return res.status(400).send('Invalid recipe Id.')
   }
@@ -457,6 +462,58 @@ recipeCtrl.getByIngredients = async (req, res) => {
   } catch (err) {
     console.error(err)
     res.status(500).send('Error retrieving recipes')
+  }
+}
+
+recipeCtrl.getIngredientsOfRecipe = async (req, res) => {
+  try {
+    const { recipeId } = req.params
+
+    const ingredients = await db.any(
+      `SELECT * FROM ingredients i 
+      JOIN recipe_ingredients ri ON i.id = ri.ingredient_id 
+      JOIN recipe r ON r.recipe_id = ri.recipe_id
+      WHERE recipe_id=$1 `,
+      [recipeId]
+    )
+    res.status(200).json({ ingredients })
+  } catch (err) {
+    res.status(500).send({ msg: err })
+  }
+}
+
+// NHAM
+recipeCtrl.getOriginOfRecipe = async (req, res) => {
+  try {
+  } catch (err) {
+    res.status(500).send({ msg: err })
+  }
+}
+
+recipeCtrl.getTotalNutrtionOfRecipe = async (req, res) => {
+  try {
+    const { recipeId } = req.params
+    const { servingNum } = req.body
+    const servingSizeNum = parseFloat(servingNum)
+    const ingredientFactsOfRecipe = []
+
+    const ingredients = await db.manyOrNone(
+      `SELECT i.*, ri.quantity AS recipe_ing_quantity, ri.unit_name AS recipe_ing_unit_name FROM ingredients i JOIN recipe_ingredients ri ON i.id = ri.ingredient_id WHERE ri.recipe_id = $1`,
+      [recipeId]
+    )
+
+    for (const ingredient of ingredients) {
+      console.log('Ingredient in RecipeCtrl:', ingredient)
+      const nutritions = await calNutritionFactTotalOfEach(
+        ingredient,
+        servingSizeNum
+      )
+      ingredientFactsOfRecipe.push(nutritions)
+    }
+
+    res.status(200).json({ ingredientFactsOfRecipe })
+  } catch (err) {
+    res.status(500).send({ msg: err })
   }
 }
 

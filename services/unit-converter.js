@@ -20,14 +20,10 @@ function convertUnitToCorrespQuantity(
 
   // Convert the original quantity to grams (g)
   const gramsQuantity = originalQuantity * conversionFactors[originalUnit]
-  console.log('convertsionFacSTH', originalUnit)
-  console.log('gramsQuantity', gramsQuantity)
-
   // Convert the grams quantity to the desired unit
   const convertedQuantity = gramsQuantity / conversionFactors[desiredUnit]
-  console.log('convertedQut', convertedQuantity)
 
   return convertedQuantity
 }
 
-module.exports = { convertUnitToCorrespQuantity }
+module.exports = { convertUnitToCorrespQuantity}
