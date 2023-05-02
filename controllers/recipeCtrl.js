@@ -469,11 +469,11 @@ recipeCtrl.getIngredientsOfRecipe = async (req, res) => {
   try {
     const { recipeId } = req.params
 
-    const ingredients = await db.any(
-      `SELECT * FROM ingredients i 
+    const ingredients = await db.manyOrNone(
+      `SELECT i.* FROM ingredients i 
       JOIN recipe_ingredients ri ON i.id = ri.ingredient_id 
-      JOIN recipe r ON r.recipe_id = ri.recipe_id
-      WHERE recipe_id=$1 `,
+      JOIN recipe r ON r.recipe_id = ri.recipe_id 
+      WHERE r.recipe_id=$1`,
       [recipeId]
     )
     res.status(200).json({ ingredients })
@@ -490,7 +490,7 @@ recipeCtrl.getOriginOfRecipe = async (req, res) => {
   }
 }
 
-recipeCtrl.getTotalNutrtionOfRecipe = async (req, res) => {
+recipeCtrl.getTotalNutrtionFactOfRecipe = async (req, res) => {
   try {
     const { recipeId } = req.params
     const { servingNum } = req.body
