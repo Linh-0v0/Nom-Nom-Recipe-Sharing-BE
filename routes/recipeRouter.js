@@ -43,12 +43,14 @@ recipeRouter.post(
 recipeRouter.delete(
   '/delete-ingredient/:recipeId/:ingredientId', recipeCtrl.deleteIngredient
 )
-/* Insert&Update Country of Recipe */
+/* Country of Recipe */
 recipeRouter.post(
   '/insert-country', recipeCtrl.insertCountry
 )
 
 recipeRouter.patch('/update-dietary/:recipeId', recipeCtrl.updateDietary)
+
+recipeRouter.get('/get-origin/:recipeId', recipeCtrl.getOriginOfRecipe)
 // Calculate Recipe's Calories based on the Ingredients in recipe.
 recipeRouter.get('/calories/per_serving/:recipeId', recipeCtrl.getTotalIngCaloPerRecipe)
 // Calculate Recipe's Calories based on the ServingInput got from User

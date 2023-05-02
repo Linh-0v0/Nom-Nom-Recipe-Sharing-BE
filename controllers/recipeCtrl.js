@@ -485,6 +485,15 @@ recipeCtrl.getIngredientsOfRecipe = async (req, res) => {
 // NHAM
 recipeCtrl.getOriginOfRecipe = async (req, res) => {
   try {
+    const { recipeId } = req.params
+
+    const result = await db.manyOrNone(`SELECT c.name, c.id FROM countries c 
+    JOIN recipe_country rc ON c.id=rc.country_pref_id
+    JOIN recipe r ON r.recipe_id = rc.recipe_id
+    WHERE r.recipe_id=$1
+    `,[recipeId])
+
+    res.status(200).json(result)
   } catch (err) {
     res.status(500).send({ msg: err })
   }
