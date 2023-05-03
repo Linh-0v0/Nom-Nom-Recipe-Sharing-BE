@@ -58,6 +58,8 @@ recipeRouter.post('/calories/based_servings/:recipeId', recipeCtrl.getTotalCalor
 
 recipeRouter.get('/get-ingredients-by-recipe/:recipeId', recipeCtrl.getIngredientsOfRecipe)
 
+recipeRouter.get('/nutritions/total-ing-nutrition-facts/:recipeId', recipeCtrl.getTotalNutrtionFactOfRecipeIng)
+
 recipeRouter.get('/nutritions/total-nutrition-facts/:recipeId', recipeCtrl.getTotalNutrtionFactOfRecipe)
 
 

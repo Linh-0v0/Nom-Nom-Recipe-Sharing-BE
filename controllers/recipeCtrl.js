@@ -487,11 +487,14 @@ recipeCtrl.getOriginOfRecipe = async (req, res) => {
   try {
     const { recipeId } = req.params
 
-    const result = await db.manyOrNone(`SELECT c.name, c.id FROM countries c 
+    const result = await db.manyOrNone(
+      `SELECT c.name, c.id FROM countries c 
     JOIN recipe_country rc ON c.id=rc.country_pref_id
     JOIN recipe r ON r.recipe_id = rc.recipe_id
     WHERE r.recipe_id=$1
-    `,[recipeId])
+    `,
+      [recipeId]
+    )
 
     res.status(200).json(result)
   } catch (err) {
@@ -499,7 +502,74 @@ recipeCtrl.getOriginOfRecipe = async (req, res) => {
   }
 }
 
+// all ingredients values is added into one 'nutrition facts table based on recipeServing
 recipeCtrl.getTotalNutrtionFactOfRecipe = async (req, res) => {
+  try {
+    const { recipeId } = req.params
+    const { servingNum } = req.body
+    const servingSizeNum = parseFloat(servingNum)
+    const ingredientFactsOfRecipe = []
+    const nutritions = {
+      calories: 0,
+      carb: 0,
+      protein: 0,
+      fat: 0,
+      sugar: 0,
+      sodium: 0,
+      fiber: 0,
+      cholesterol: 0,
+      vitamin_a: 0,
+      vitamin_b12: 0,
+      vitamin_b6: 0,
+      vitamin_c: 0,
+      vitamin_d: 0,
+      vitamin_e: 0,
+      vitamin_k: 0,
+      potassium: 0,
+      calcium: 0,
+      iron: 0
+    }
+
+    const ingredients = await db.manyOrNone(
+      `SELECT i.*, ri.quantity AS recipe_ing_quantity, ri.unit_name AS recipe_ing_unit_name FROM ingredients i JOIN recipe_ingredients ri ON i.id = ri.ingredient_id WHERE ri.recipe_id = $1`,
+      [recipeId]
+    )
+
+    for (const ingredient of ingredients) {
+      const nutrition = await calNutritionFactTotalOfEach(
+        ingredient,
+        servingSizeNum
+      )
+      nutritions.calories += nutrition.calories
+      nutritions.carb += nutrition.carb
+      nutritions.protein += nutrition.protein
+      nutritions.fat += nutrition.fat
+      nutritions.sugar += nutrition.sugar
+      nutritions.sodium += nutrition.sodium
+      nutritions.fiber += nutrition.fiber
+      nutritions.cholesterol += parseFloat(nutrition.cholesterol)
+      nutritions.vitamin_a += nutrition.vitamin_a
+      nutritions.vitamin_b12 += nutrition.vitamin_b12
+      nutritions.vitamin_b6 += nutrition.vitamin_b6
+      nutritions.vitamin_c += nutrition.vitamin_c
+      nutritions.vitamin_d += nutrition.vitamin_d
+      nutritions.vitamin_e += nutrition.vitamin_e
+      nutritions.vitamin_k += nutrition.vitamin_k
+      nutritions.potassium += nutrition.potassium
+      nutritions.calcium += nutrition.calcium
+      nutritions.iron += nutrition.iron
+      console.log("Nutrition in recipeCtrl:", nutritions)
+    }
+    ingredientFactsOfRecipe.push(nutritions)
+
+    res.status(200).json({ ingredientFactsOfRecipe })
+  } catch (err) {
+    res.status(500).send({ msg: err })
+  }
+}
+
+// list the total value of each ingredients based on recipeServing
+recipeCtrl.getTotalNutrtionFactOfRecipeIng = async (req, res) => {
   try {
     const { recipeId } = req.params
     const { servingNum } = req.body
