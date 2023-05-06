@@ -1,5 +1,12 @@
 const recipeCtrl = require('../controllers/recipeCtrl')
 const user_auth = require('../middleware/user_auth')
+const {
+  getAuthUrl,
+  getAccessToken,
+  getNewAccessToken,
+  googleCallBack
+} = require('../controllers/google_auth')
+const { upload, storage } = require('../services/multerHandleImg')
 
 const recipeRouter = require('express').Router()
 
@@ -25,7 +32,7 @@ recipeRouter.put('/:recipe_id', user_auth, recipeCtrl.updateRecipe)
 recipeRouter.delete('/:recipe_id', user_auth, recipeCtrl.deleteRecipe)
 
 //Available ingredients
-recipeRouter.post('/search-by-ingredients', recipeCtrl.getByIngredients);
+recipeRouter.post('/search-by-ingredients', recipeCtrl.getByIngredients)
 
 //Get recipe base on user dietary
 recipeRouter.get(
@@ -36,31 +43,57 @@ recipeRouter.get(
   '/recommendations/country/:userId',
   recipeCtrl.recipeRecBasedUserCountry
 )
+
+//Get recipe by country
+recipeRouter.get('/by-country/:countryPrefId', recipeCtrl.getRecipeByCountry)
+
+//Get recipe by dietary
+recipeRouter.get('/by-dietary/:dietaryPref', recipeCtrl.getRecipeByDietary)
+
 /* Recipe Ingredient */
-recipeRouter.post(
-  '/insert-ingredient', recipeCtrl.insertIngredient
-)
+recipeRouter.post('/insert-ingredient', recipeCtrl.insertIngredient)
 recipeRouter.delete(
-  '/delete-ingredient/:recipeId/:ingredientId', recipeCtrl.deleteIngredient
+  '/delete-ingredient/:recipeId/:ingredientId',
+  recipeCtrl.deleteIngredient
 )
 /* Country of Recipe */
-recipeRouter.post(
-  '/insert-country', recipeCtrl.insertCountry
-)
+recipeRouter.post('/insert-country', recipeCtrl.insertCountry)
 
 recipeRouter.patch('/update-dietary/:recipeId', recipeCtrl.updateDietary)
 
 recipeRouter.get('/get-origin/:recipeId', recipeCtrl.getOriginOfRecipe)
 // Calculate Recipe's Calories based on the Ingredients in recipe.
-recipeRouter.get('/calories/per_serving/:recipeId', recipeCtrl.getTotalIngCaloPerRecipe)
+recipeRouter.get(
+  '/calories/per_serving/:recipeId',
+  recipeCtrl.getTotalIngCaloPerRecipe
+)
 // Calculate Recipe's Calories based on the ServingInput got from User
-recipeRouter.post('/calories/based_servings/:recipeId', recipeCtrl.getTotalCaloriesBasedServ)
+recipeRouter.post(
+  '/calories/based_servings/:recipeId',
+  recipeCtrl.getTotalCaloriesBasedServ
+)
 
-recipeRouter.post('/get-ingredients-by-recipe/:recipeId', recipeCtrl.getIngredientsOfRecipe)
+recipeRouter.post(
+  '/get-ingredients-by-recipe/:recipeId',
+  recipeCtrl.getIngredientsOfRecipe
+)
 
-recipeRouter.post('/nutritions/total-ing-nutrition-facts/:recipeId', recipeCtrl.getTotalNutrtionFactOfRecipeIng)
+recipeRouter.post(
+  '/nutritions/total-ing-nutrition-facts/:recipeId',
+  recipeCtrl.getTotalNutrtionFactOfRecipeIng
+)
 
-recipeRouter.post('/nutritions/total-nutrition-facts/:recipeId', recipeCtrl.getTotalNutrtionFactOfRecipe)
+recipeRouter.post(
+  '/nutritions/total-nutrition-facts/:recipeId',
+  recipeCtrl.getTotalNutrtionFactOfRecipe
+)
 
+recipeRouter.post(
+  '/update-img/:recipeId',
+  upload.single('recipeImage'),
+  user_auth, recipeCtrl.saveRecipeImg
+)
+
+recipeRouter.get('/get-img/:recipeId', recipeCtrl.getRecipeImg)
 
 module.exports = recipeRouter
