@@ -22,3 +22,4 @@
 
 -- 
 \i models/collection.sql
+\i models/review.sql

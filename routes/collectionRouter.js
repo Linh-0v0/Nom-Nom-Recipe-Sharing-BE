@@ -2,6 +2,13 @@ const express = require('express')
 const collectionCtrl = require('../controllers/collectionCtrl')
 const collectionRouter = express.Router()
 const user_auth = require('../middleware/user_auth')
+const {
+  getAuthUrl,
+  getAccessToken,
+  getNewAccessToken,
+  googleCallBack
+} = require('../controllers/google_auth')
+const { upload, storage } = require('../services/multerHandleImg')
 
 // Create a new collection
 collectionRouter.post('/', collectionCtrl.createCollection)
@@ -41,5 +48,13 @@ collectionRouter.get(
 
 //Update collection
 collectionRouter.put('/:id', user_auth, collectionCtrl.updateCollection)
+
+collectionRouter.post(
+  '/update-img/:collectionId',
+  upload.single('collectionImage'), user_auth,
+  collectionCtrl.saveCollectionImg
+)
+
+collectionRouter.get('/get-img/:collectionId', user_auth,collectionCtrl.getCollectionImg)
 
 module.exports = collectionRouter

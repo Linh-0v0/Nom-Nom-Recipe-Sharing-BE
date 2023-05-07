@@ -1,5 +1,12 @@
 const db = require('../db')
-
+const {
+  uploadBytes,
+  ref,
+  getDownloadURL,
+  deleteObject
+} = require('firebase/storage')
+const { v4: uuidv4 } = require('uuid')
+const { storage } = require('../firebaseConfig')
 const user_auth = require('../middleware/user_auth')
 const {
   calculateRecipeCalories,
@@ -558,7 +565,7 @@ recipeCtrl.getTotalNutrtionFactOfRecipe = async (req, res) => {
       nutritions.potassium += nutrition.potassium
       nutritions.calcium += nutrition.calcium
       nutritions.iron += nutrition.iron
-      console.log("Nutrition in recipeCtrl:", nutritions)
+      console.log('Nutrition in recipeCtrl:', nutritions)
     }
     ingredientFactsOfRecipe.push(nutritions)
 
@@ -593,6 +600,126 @@ recipeCtrl.getTotalNutrtionFactOfRecipeIng = async (req, res) => {
     res.status(200).json({ ingredientFactsOfRecipe })
   } catch (err) {
     res.status(500).send({ msg: err })
+  }
+}
+
+recipeCtrl.getRecipeByCountry = async (req, res) => {
+  const countryPrefId = req.params.countryPrefId
+
+  try {
+    await db.query('BEGIN')
+
+    const recipesResult = await db.query(
+      'SELECT recipe.* FROM recipe JOIN recipe_country ON recipe.recipe_id = recipe_country.recipe_id WHERE recipe_country.country_pref_id = $1',
+      [countryPrefId]
+    )
+
+    await db.query('COMMIT')
+
+    res.json(recipesResult)
+  } catch (err) {
+    await db.query('ROLLBACK')
+    console.error(err)
+    res.status(500).send('Error retrieving recipes by country preference')
+  }
+}
+
+recipeCtrl.getRecipeByDietary = async (req, res) => {
+  const dietaryPref = req.params.dietaryPref
+
+  try {
+    await db.query('BEGIN')
+
+    const recipesResult = await db.query(
+      'SELECT recipe.* FROM recipe JOIN recipe_dietary ON recipe.recipe_id = recipe_dietary.recipe_id WHERE recipe_dietary.dietary_pref = $1',
+      [dietaryPref]
+    )
+
+    await db.query('COMMIT')
+
+    res.json(recipesResult)
+  } catch (err) {
+    console.error(err)
+    res.status(500).send('Error retrieving recipes by dietary preference')
+  }
+}
+
+//Post or update recipe img
+recipeCtrl.saveRecipeImg = async (req, res) => {
+  try {
+    const { recipeId } = req.params
+    const file = req.file
+    const recipe = await db.oneOrNone(
+      'SELECT * FROM recipe WHERE recipe_id = $1',
+      [recipeId]
+    )
+    if (!recipe) {
+      return res.status(400).send('Invalid recipe.')
+    }
+    const recipeImgUrl = await db.oneOrNone(
+      'SELECT image_link FROM recipe WHERE recipe_id = $1',
+      [recipeId]
+    )
+
+    if (recipeImgUrl) {
+      // If old image exists, Delete the old one on Firestore Cloud
+      const oldStorageRef = ref(storage, `${recipeImgUrl.img_url}`)
+      // Delete the file
+      deleteObject(oldStorageRef)
+        .then(() => {
+          console.log('Delete the old image on Firebase Cloud successfully.')
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    }
+
+    // Save Recipe Image to the Firebase Cloud
+    console.log('running save recipe image', req.file)
+    const storageRef = ref(storage, `/recipes/${uuidv4()}-${file.originalname}`)
+
+    uploadBytes(storageRef, file.buffer)
+
+    const firestoreUrl = storageRef.fullPath
+    await db.none('UPDATE recipe SET image_link=$2 WHERE recipe_id=$1', [
+      recipeId,
+      firestoreUrl
+    ])
+
+    res.status(200).json({ msg: 'Uploaded successfully' })
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ msg: err })
+  }
+}
+
+//Get recipe img
+recipeCtrl.getRecipeImg = async (req, res) => {
+  try {
+    const { recipeId } = req.params
+    const recipe = await db.oneOrNone(
+      'SELECT * FROM recipe WHERE recipe_id = $1',
+      [recipeId]
+    )
+    if (!recipe) {
+      return res.status(400).send('Invalid recipe id.')
+    }
+    const recipeImgUrl = await db.oneOrNone(
+      'SELECT image_link FROM recipe WHERE recipe_id = $1',
+      [recipeId]
+    )
+
+    const image_link = recipeImgUrl.image_link
+    const recipe_default = 'default-recipe-image.jpg'
+    const storageRef = ref(storage, `${!image_link ? recipe_default : image_link}`)
+    console.log(image_link)
+    getDownloadURL(storageRef).then(url => {
+      console.log('Image URL:', url)
+      res.status(200).json(url)
+    })
+    console.log('imageRef Full Path:', storageRef.fullPath)
+  } catch (err) {
+    return res.status(500).json({ msg: err.message })
   }
 }
 

@@ -1,6 +1,13 @@
 const db = require('../db')
 const user_auth = require('../middleware/user_auth')
-
+const {
+  uploadBytes,
+  ref,
+  getDownloadURL,
+  deleteObject
+} = require('firebase/storage')
+const { v4: uuidv4 } = require('uuid')
+const { storage } = require('../firebaseConfig')
 const collectionCtrl = {}
 
 //Create a collection, can be null at the beginning
@@ -304,6 +311,84 @@ collectionCtrl.removeCollection = async (req, res) => {
   } catch (error) {
     console.error('Error deleting collection:', error)
     res.status(500).json({ message: 'Error deleting collection' })
+  }
+}
+
+collectionCtrl.saveCollectionImg = async (req, res) => {
+  try {
+    const { collectionId } = req.params
+    const file = req.file
+    const collection = await db.oneOrNone(
+      'SELECT * FROM collection WHERE collection_id = $1',
+      [collectionId]
+    )
+    if (!collection) {
+      return res.status(400).send('Invalid collection.')
+    }
+    const collectionImgUrl = await db.oneOrNone(
+      'SELECT image_link FROM collection WHERE collection_id = $1',
+      [collectionId]
+    )
+
+    if (collectionImgUrl) {
+      // If old image exists, Delete the old one on Firestore Cloud
+      const oldStorageRef = ref(storage, `${collectionImgUrl.image_link}`)
+      // Delete the file
+      deleteObject(oldStorageRef)
+        .then(() => {
+          console.log('Delete the old image on Firebase Cloud successfully.')
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    }
+
+    // Save Collection Image to the Firebase Cloud
+    console.log('running save collection image', req.file)
+    const storageRef = ref(storage, `/collections/${uuidv4()}-${file.originalname}`)
+
+    uploadBytes(storageRef, file.buffer)
+
+    const firestoreUrl = storageRef.fullPath
+    await db.none('UPDATE collection SET image_link=$2 WHERE collection_id=$1', [
+      collectionId,
+      firestoreUrl
+    ])
+
+    res.status(200).json({ msg: 'Uploaded successfully' })
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ msg: err })
+  }
+}
+
+//Get collection img
+collectionCtrl.getCollectionImg = async (req, res) => {
+  try {
+    const { collectionId } = req.params
+    const collection = await db.oneOrNone(
+      'SELECT * FROM collection WHERE collection_id = $1',
+      [collectionId]
+    )
+    if (!collection) {
+      return res.status(400).send('Invalid collection id.')
+    }
+    const collectionImgUrl = await db.oneOrNone(
+      'SELECT image_link FROM collection WHERE collection_id = $1',
+      [collectionId]
+    )
+
+    const image_link = collectionImgUrl.image_link
+    const collection_default = 'default-collection-image.jpg'
+    const storageRef = ref(storage, `${!image_link ? collection_default : image_link}`)
+    console.log(image_link)
+    getDownloadURL(storageRef).then(url => {
+      console.log('Image URL:', url)
+      res.status(200).json(url)
+    })
+    console.log('imageRef Full Path:', storageRef.fullPath)
+  } catch (err) {
+    return res.status(500).json({ msg: err.message })
   }
 }
 

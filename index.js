@@ -28,6 +28,7 @@ app.use('/ingredient', require('./routes/ingredientRouter'))
 app.use('/unit', require('./routes/unitRouter'))
 app.use('/country', require('./routes/countryRouter'))
 app.use('/dietary', require('./routes/dietaryRouter'))
+app.use('/recipe', require('./routes/reviewRouter'))
 
 app.get('/', function (req, res) {
   res.send('Hello World')
