@@ -201,23 +201,21 @@ userCtrl.getAllUsers = async (req, res) => {
 userCtrl.updateUserDetails = async (req, res) => {
   try {
     const { username, password } = req.body
-    const userId = req.params
+    const userId = req.params.userId
     const passwordHash = await bcrypt.hash(password, 10)
 
     // Find user by id
     const user = await db.oneOrNone('SELECT * FROM users WHERE id=$1', [userId])
     if (!user) return res.status(400).json({ msg: 'User does not exist.' })
+    console.log('USER FETCH:', user)
 
     // update
-    const updateUser = await db.oneOrNone(
+    const updateUser = await db.none(
       'UPDATE users SET username = $2, password = $3 WHERE id = $1',
       [userId, username, passwordHash]
     )
 
-    // remove password from the response
-    delete updateUser.password
-
-    res.status(200).json(updateUser)
+    res.status(200).json("Update information successfully!")
   } catch (err) {
     return res.status(500).json({ msg: err.message })
   }
