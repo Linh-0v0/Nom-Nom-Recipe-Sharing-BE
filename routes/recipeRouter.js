@@ -50,6 +50,9 @@ recipeRouter.get('/by-country/:countryPrefId', recipeCtrl.getRecipeByCountry)
 //Get recipe by dietary
 recipeRouter.get('/by-dietary/:dietaryPref', recipeCtrl.getRecipeByDietary)
 
+//Get recipe 
+recipeRouter.post('/search-all', recipeCtrl.searchRecipes)
+
 /* Recipe Ingredient */
 recipeRouter.post('/insert-ingredient', recipeCtrl.insertIngredient)
 recipeRouter.delete(

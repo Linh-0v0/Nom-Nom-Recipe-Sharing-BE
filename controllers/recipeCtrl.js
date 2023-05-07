@@ -723,4 +723,38 @@ recipeCtrl.getRecipeImg = async (req, res) => {
   }
 }
 
+
+//Search recipe base on all requirements
+recipeCtrl.searchRecipes = async (req, res) => {
+  const { name, countryId, dietaryPref } = req.body;
+  try{
+    const whereClauses = [];
+    
+    if (name) {
+      whereClauses.push(`recipe.name ILIKE '%${name}%'`);
+    }
+    if (countryId) {
+      whereClauses.push(`recipe.recipe_id IN (SELECT recipe_id FROM recipe_country WHERE country_pref_id = ${countryId})`);
+    }
+    if (dietaryPref) {
+      whereClauses.push(`recipe.recipe_id IN (SELECT recipe_id FROM recipe_dietary WHERE dietary_pref = '${dietaryPref}')`);
+    }
+
+    const whereClause = whereClauses.join(" AND ");
+    const recipes = await db.any(`
+      SELECT recipe.recipe_id, recipe.author_id, recipe.name, recipe.created_at, recipe.updated_at, recipe.serving_size, recipe.serving_unit, recipe.duration, recipe.image_link, recipe.description, recipe_country.country_pref_id, recipe_dietary.dietary_pref
+      FROM recipe
+      JOIN recipe_country ON recipe.recipe_id = recipe_country.recipe_id
+      LEFT JOIN recipe_dietary ON recipe.recipe_id = recipe_dietary.recipe_id
+      WHERE ${whereClause}
+    `);
+
+    res.status(200).json(recipes)
+  } catch (error) {
+    console.error('Error retrieving recipes:', error);
+    res.status(500).json({ message: 'Error retrieving recipes' });
+  }
+};
+
+
 module.exports = recipeCtrl
