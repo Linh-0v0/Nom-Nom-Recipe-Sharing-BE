@@ -21,7 +21,7 @@ reviewRouter.put(
 )
 
 //Get all review in 1 recipe
-reviewRouter.get('/:recipe_id/reviews', user_auth, reviewCtrl.getRecipeReviews)
+reviewRouter.get('/:recipe_id/reviews', reviewCtrl.getRecipeReviews)
 
 //Delete review
 reviewRouter.delete(
@@ -33,7 +33,6 @@ reviewRouter.delete(
 //Get recipe with all reviews
 reviewRouter.get(
   '/rr/:recipe_id/reviews',
-  user_auth,
   reviewCtrl.getRecipeWithReviews
 )
 
