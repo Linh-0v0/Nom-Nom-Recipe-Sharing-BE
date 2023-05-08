@@ -200,7 +200,7 @@ userCtrl.getAllUsers = async (req, res) => {
 
 userCtrl.updateUserDetails = async (req, res) => {
   try {
-    const { username, password } = req.body
+    const { username, password, verifypassword } = req.body
     const userId = req.params.userId
     const passwordHash = await bcrypt.hash(password, 10)
 
@@ -209,13 +209,33 @@ userCtrl.updateUserDetails = async (req, res) => {
     if (!user) return res.status(400).json({ msg: 'User does not exist.' })
     console.log('USER FETCH:', user)
 
+    const passwordMatch = await bcrypt.compare(password, user.password)
+
+    if (!username) {
+      return res.status(400).json({ msg: 'Username is required.' })
+    }
+
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({ msg: 'Password must be at least 6 characters.' })
+    } else if (passwordMatch) {
+      return res
+        .status(400)
+        .json({ msg: 'Password cannot be the same as the old one.' })
+    } else if (password !== verifypassword) {
+      return res
+        .status(400)
+        .json({ msg: 'Your password and confirmation password do not match.' })
+    }
+
     // update
-    const updateUser = await db.none(
+    await db.none(
       'UPDATE users SET username = $2, password = $3 WHERE id = $1',
       [userId, username, passwordHash]
     )
 
-    res.status(200).json("Update information successfully!")
+    res.status(200).json('Update information successfully!')
   } catch (err) {
     return res.status(500).json({ msg: err.message })
   }
