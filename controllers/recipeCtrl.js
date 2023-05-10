@@ -14,7 +14,6 @@ const {
 } = require('../services/recipe-calculator')
 const recipeCtrl = {}
 
-//Function insert recipe
 // Create a new recipe
 recipeCtrl.createRecipe = async (req, res) => {
   user_auth(req, res, async () => {
@@ -24,6 +23,9 @@ recipeCtrl.createRecipe = async (req, res) => {
     const duration = req.body.duration
     const imageLink = req.body.imageLink
     const description = req.body.description
+    const ingredients = req.body.ingredients // array of ingredient objects
+    const dietaryPrefs = req.body.dietaryPrefs // array of dietary preference names
+    const countryPrefs = req.body.countryPrefs // array of country preference IDs
 
     if (!name) {
       return res.status(400).json({ message: 'Name is required' })
@@ -49,6 +51,31 @@ recipeCtrl.createRecipe = async (req, res) => {
       )
       const recipeId = insertRecipeResult[0].recipe_id
 
+      // loop through ingredients array and insert into database
+      for (let i = 0; i < ingredients.length; i++) {
+        const { ingredientId, quantity, unit_name } = ingredients[i]
+        await db.query(
+          'INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit_name) VALUES ($1, $2, $3, $4)',
+          [recipeId, ingredientId, quantity, unit_name]
+        )
+      }
+
+      // loop through dietaryPrefs array and insert into database
+      for (let i = 0; i < dietaryPrefs.length; i++) {
+        await db.query(
+          'INSERT INTO recipe_dietary (recipe_id, dietary_pref) VALUES ($1, $2)',
+          [recipeId, dietaryPrefs[i]]
+        )
+      }
+
+      // loop through countryPrefs array and insert into database
+      for (let i = 0; i < countryPrefs.length; i++) {
+        await db.query(
+          'INSERT INTO recipe_country (recipe_id, country_pref_id) VALUES ($1, $2)',
+          [recipeId, countryPrefs[i]]
+        )
+      }
+
       res.status(201).json({ message: 'Recipe created', recipeId })
     } catch (error) {
       console.error('Error creating recipe:', error)
@@ -56,6 +83,7 @@ recipeCtrl.createRecipe = async (req, res) => {
     }
   })
 }
+
 
 //Function get recipe by name
 recipeCtrl.getByName = async (req, res) => {
