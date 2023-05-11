@@ -14,4 +14,19 @@ CREATE TABLE IF NOT EXISTS collection_recipe (
   PRIMARY KEY (collection_id, recipe_id),
   FOREIGN KEY (collection_id) REFERENCES collection(collection_id),
   FOREIGN KEY (recipe_id) REFERENCES recipe(recipe_id)
-)
+);
+
+INSERT INTO collection (collection_id, user_id, name, note)
+VALUES
+  (1, 1, 'Favorites', 'Collection of my favorite recipes'),
+  (2, 1, 'Quick and Easy', 'Collection of quick and easy recipes'),
+  (3, 2, 'Desserts', 'Collection of delicious desserts') on CONFLICT DO NOTHING;
+
+INSERT INTO collection_recipe (collection_id, recipe_id)
+VALUES
+  (1, 1),
+  (1, 2),
+  (2, 3),
+  (2, 4),
+  (3, 5)
+ON CONFLICT DO NOTHING;
