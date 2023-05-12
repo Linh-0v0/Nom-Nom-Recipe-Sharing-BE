@@ -283,7 +283,7 @@ userCtrl.getAvatarImg = async (req, res) => {
     )
 
     const avatar_url = userAvatarUrl.avatar_url
-    const profile_default = '021c561a-profile-icon-default.png'
+    const profile_default = 'avatars/021c561a-profile-icon-default.png'
     const storageRef = ref(
       storage,
       `${!avatar_url ? profile_default : avatar_url}`
