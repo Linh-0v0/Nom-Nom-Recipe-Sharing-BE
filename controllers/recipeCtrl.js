@@ -537,6 +537,26 @@ recipeCtrl.getOriginOfRecipe = async (req, res) => {
   }
 }
 
+recipeCtrl.getDietaryOfRecipe = async (req, res) => {
+  try {
+    const { recipeId } = req.params
+
+    const result = await db.manyOrNone(
+      `SELECT d.name FROM dietary_pref d
+      JOIN recipe_dietary rd ON d.name=rd.dietary_pref
+      JOIN recipe r ON r.recipe_id = rd.recipe_id
+      WHERE r.recipe_id=$1
+      `,
+      [recipeId]
+    )
+
+    res.status(200).json(result)
+  } catch (err) {
+    res.status(500).send({ msg: err })
+  }
+}
+
+
 // all ingredients values is added into one 'nutrition facts table based on recipeServing
 recipeCtrl.getTotalNutrtionFactOfRecipe = async (req, res) => {
   try {

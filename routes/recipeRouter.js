@@ -65,6 +65,10 @@ recipeRouter.post('/insert-country', recipeCtrl.insertCountry)
 recipeRouter.patch('/update-dietary/:recipeId', recipeCtrl.updateDietary)
 
 recipeRouter.get('/get-origin/:recipeId', recipeCtrl.getOriginOfRecipe)
+
+//Get dietary of Recipe
+recipeRouter.get('/get-dietary/:recipeId', recipeCtrl.getDietaryOfRecipe)
+
 // Calculate Recipe's Calories based on the Ingredients in recipe.
 recipeRouter.get(
   '/calories/per_serving/:recipeId',
