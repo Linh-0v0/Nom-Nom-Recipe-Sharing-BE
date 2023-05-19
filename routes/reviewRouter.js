@@ -3,7 +3,7 @@ const reviewCtrl = require('../controllers/reviewCtrl')
 const reviewRouter = express.Router()
 const user_auth = require('../middleware/user_auth')
 
-//Create new recipe
+//Create new review
 reviewRouter.post('/:recipe_id/reviews', user_auth, reviewCtrl.createReview)
 
 //Get one review by recipe ID
