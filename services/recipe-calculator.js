@@ -45,7 +45,7 @@ async function calculateRecipeCalories(recipeId) {
   }
 }
 
-//Return "total of a nutrition" in grams of "A Ingredient in Recipe"
+//Return "total of all nutrients" in grams of "a Ingredient in Recipe"
 async function calNutritionFactTotalOfEach(ingredient, recipeServingNum) {
   try {
     const nutritions = {}

@@ -1,4 +1,4 @@
-// converts the quantity of an ingredient from one unit to grams,
+// converts the unit-quantity of an ingredient from one unit to Grams,
 // which is then used to calculate the total calories of the ingredient.
 function convertUnitToCorrespQuantity(
   originalUnit,
