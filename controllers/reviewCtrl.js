@@ -5,40 +5,45 @@ const reviewCtrl = {}
 
 //Create new review including rating and comment. Comment can be null
 reviewCtrl.createReview = async (req, res) => {
-  const userId = req.user && req.user.id
-  const recipeId = req.params.recipe_id
-  const { rating, comment } = req.body
+  const userId = req.user && req.user.id;
+  const recipeId = req.params.recipe_id;
+  const { rating, comment } = req.body;
+  const startingReviewId = 7; // Specify the starting review id
 
   try {
-    const client = await db.connect()
-    await client.query('BEGIN')
+    const client = await db.connect();
+    await client.query('BEGIN');
+
+    // Get the next available review_id
+    const getNextReviewIdQuery = `SELECT nextval('reviews_review_id_seq') AS next_review_id`;
+    const { next_review_id } = await client
+      .query(getNextReviewIdQuery)
+      .then(result => result[0]);
+    const review_id = Math.max(next_review_id, startingReviewId);
 
     // Insert into review table
     const insertReviewQuery =
-      'INSERT INTO reviews (user_id, rating, comment) VALUES ($1, $2, $3) RETURNING review_id'
-    const insertReviewValues = [userId, rating, comment]
-    const { review_id } = await client
-      .query(insertReviewQuery, insertReviewValues)
-      .then(result => result[0])
-    console.log(`Review with ID ${review_id} inserted into review table`)
+      'INSERT INTO reviews (review_id, user_id, rating, comment) VALUES ($1, $2, $3, $4)';
+    const insertReviewValues = [review_id, userId, rating, comment];
+    await client.query(insertReviewQuery, insertReviewValues);
+    console.log(`Review with ID ${review_id} inserted into review table`);
 
     // Insert into review_recipe table
     const insertReviewRecipeQuery =
-      'INSERT INTO reviews_recipes (review_id, recipe_id) VALUES ($1, $2)'
-    const insertReviewRecipeValues = [review_id, recipeId]
-    await client.query(insertReviewRecipeQuery, insertReviewRecipeValues)
-    console.log(
-      `Review with ID ${review_id} linked to recipe with ID ${recipeId}`
-    )
+      'INSERT INTO reviews_recipes (review_id, recipe_id) VALUES ($1, $2)';
+    const insertReviewRecipeValues = [review_id, recipeId];
+    await client.query(insertReviewRecipeQuery, insertReviewRecipeValues);
+    console.log(`Review with ID ${review_id} linked to recipe with ID ${recipeId}`);
 
-    await client.query('COMMIT')
+    await client.query('COMMIT');
 
-    res.status(200).json({ message: 'Review created' })
+    res.status(200).json({ message: 'Review created' });
   } catch (error) {
-    console.error('Error creating review:', error)
-    res.status(500).json({ message: 'Error creating review' })
+    console.error('Error creating review:', error);
+    res.status(500).json({ message: 'Error creating review' });
   }
-}
+};
+
 
 //Get one review by recipe id
 reviewCtrl.getReview = async (req, res) => {
