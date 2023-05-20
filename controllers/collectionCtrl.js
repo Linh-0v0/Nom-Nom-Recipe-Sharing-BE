@@ -57,8 +57,7 @@ collectionCtrl.createCollection = async (req, res) => {
       }
 
       await client.query('COMMIT')
-
-      res.status(201).json({ message: 'Collection created' })
+      res.status(201).json({ collectionId, message: 'Collection created' })
     } catch (error) {
       console.error('Error creating collection:', error)
       res.status(500).json({ message: 'Error creating collection' })
