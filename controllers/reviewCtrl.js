@@ -77,7 +77,7 @@ reviewCtrl.getRecipeReviews = async (req, res) => {
   try {
     const reviews = await db.any(
       `
-        SELECT r.review_id, r.rating, r.comment, r.created_at, r.updated_at, u.username
+        SELECT r.review_id, r.rating, r.comment, r.created_at, r.updated_at, u.username, u.id
         FROM reviews r
         JOIN reviews_recipes rr ON rr.review_id = r.review_id
         JOIN users u ON u.id = r.user_id
