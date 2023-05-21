@@ -12,7 +12,14 @@ const db = {
 }
 
 // const dbConnect = pgp(db)
-const dbConnect = pgp(process.env.DATABASE_URI)
+// const dbConnect = pgp(process.env.DATABASE_URI)
+const dbConnect = pgp({
+  connectionString: process.env.DATABASE_URI,
+  ssl: {
+    rejectUnauthorized: false
+  }
+})
+
 module.exports = dbConnect
 
 /* -------------------------------------------------- */
