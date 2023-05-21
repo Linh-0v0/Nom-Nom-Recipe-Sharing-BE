@@ -17,7 +17,7 @@ collectionCtrl.createCollection = async (req, res) => {
     const name = req.body.name
     const note = req.body.note
     const recipeIds = req.body.recipeIds || []
-    const startingCollectionId = 7
+    const startingCollectionId = 4
 
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' })
@@ -31,11 +31,12 @@ collectionCtrl.createCollection = async (req, res) => {
       const client = await db.connect()
       await client.query('BEGIN')
 
-      const getNextCollectionIdQuery = `SELECT nextval('collection_collection_id_seq') AS next_collection_id`
-      const { next_collection_id } = await client
-        .query(getNextCollectionIdQuery)
+      const getMaxCollectionIdQuery = 'SELECT MAX(collection_id) AS max_collection_id FROM collection'
+      const { max_collection_id } = await client
+        .query(getMaxCollectionIdQuery)
         .then(result => result[0])
-      const collection_id = Math.max(next_collection_id, startingCollectionId)
+
+      const collection_id = Math.max(max_collection_id + 1, startingCollectionId)
 
       // Insert a new row into the collections table
       const insertCollectionQuery =
@@ -64,6 +65,7 @@ collectionCtrl.createCollection = async (req, res) => {
     }
   })
 }
+
 
 //Get all collection
 collectionCtrl.getCollection = async (req, res) => {

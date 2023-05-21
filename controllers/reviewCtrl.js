@@ -3,7 +3,6 @@ const user_auth = require('../middleware/user_auth')
 
 const reviewCtrl = {}
 
-//Create new review including rating and comment. Comment can be null
 reviewCtrl.createReview = async (req, res) => {
   const userId = req.user && req.user.id;
   const recipeId = req.params.recipe_id;
@@ -14,12 +13,13 @@ reviewCtrl.createReview = async (req, res) => {
     const client = await db.connect();
     await client.query('BEGIN');
 
-    // Get the next available review_id
-    const getNextReviewIdQuery = `SELECT nextval('reviews_review_id_seq') AS next_review_id`;
-    const { next_review_id } = await client
-      .query(getNextReviewIdQuery)
+    // Get the maximum review_id from the database
+    const getMaxReviewIdQuery = 'SELECT MAX(review_id) AS max_review_id FROM reviews';
+    const { max_review_id } = await client
+      .query(getMaxReviewIdQuery)
       .then(result => result[0]);
-    const review_id = Math.max(next_review_id, startingReviewId);
+
+    const review_id = Math.max(max_review_id + 1, startingReviewId);
 
     // Insert into review table
     const insertReviewQuery =
