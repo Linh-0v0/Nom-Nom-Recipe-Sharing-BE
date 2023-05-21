@@ -9,7 +9,8 @@ try {
   // execSync('psql -U your_username -f models/main.sql')
   // execSync(`PGPASSWORD=${dbPassword} psql $DATABASE_URL -f models/main.sql`)
   // execSync(`psql ${databaseURL} -U your_username -h your_host -p your_port -d your_database_name -w -f models/main.sql`)
-  execSync(`psql ${process.env.DATABASE_URI} -f models/main.sql`)
+  // execSync(`psql ${process.env.DATABASE_URI} -f models/main.sql`)
+  execSync(`PGPASSWORD=${process.env.DB_PASSWORD} psql -U ${process.env.DB_USER} -h ${process.env.DB_HOST} -p ${process.env.DB_PORT} -d ${process.env.DB_NAME} -f models/main.sql`)
 } catch (error) {
   console.error('Release script failed:', error)
   process.exit(1)

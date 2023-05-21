@@ -100,10 +100,11 @@ const googleCallBack = async (req, res) => {
     })
   // await db.none('INSERT INTO pass_reset_request(refresh_token, access_token, expires_in) VALUES($1, $2, $3)', [tokens.refresh_token, tokens.access_token, tokens.expiry_date])
 
-  req.session.gg_refresh_token = tokens.refresh_token
-  req.session.gg_access_token = tokens.access_token
-  req.session.gg_expires = tokens.expiry_date
-  console.log('refresh:', req.session.gg_refresh_token)
+  // req.session.gg_refresh_token = tokens.refresh_token
+  // req.session.gg_access_token = tokens.access_token
+  // req.session.gg_expires = tokens.expiry_date
+  // console.log('refresh:', req.session.gg_refresh_token)
+  console.log('refresh:', tokens.refresh_token)
 
   // res.cookie('google_token', tokens, {
   //   //HttpOnly to prevent XSS attacks
