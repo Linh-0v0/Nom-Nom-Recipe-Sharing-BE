@@ -31,7 +31,7 @@ VALUES
     1,
     'Lentil Soup',
     6,
-    'serving',
+    'people',
     '1 hour',
     'https://example.com/lentil-soup.jpg',
     'A hearty and healthy soup made with lentils and vegetables.'

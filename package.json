@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "release": "node release.js"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
   "dependencies": {
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.2",
+    "child_process": "^1.0.2",
     "connect-pg-simple": "^8.0.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -43,5 +45,8 @@
     "prettier": "^2.8.7",
     "redis": "^4.6.5",
     "uuid": "^9.0.0"
+  },
+  "engines": {
+    "node": "16.x"
   }
 }
