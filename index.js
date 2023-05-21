@@ -36,7 +36,7 @@ app.get('/', function (req, res) {
 
 // require('./db')
 
-const port = process.env.PORT || 3000
+const port = process.env.DB_PORT || 3000
 app.listen(port, () => {
   console.log(`Server running on port ${port}`)
 })
