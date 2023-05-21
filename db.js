@@ -11,8 +11,8 @@ const db = {
   password: process.env.DB_PASSWORD
 }
 
-const dbConnect = pgp(db)
-// const dbConnect = pgp(process.env.DATABASE_URI)
+// const dbConnect = pgp(db)
+const dbConnect = pgp(process.env.DATABASE_URI)
 module.exports = dbConnect
 
 /* -------------------------------------------------- */
