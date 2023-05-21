@@ -17,7 +17,7 @@ collectionCtrl.createCollection = async (req, res) => {
     const name = req.body.name
     const note = req.body.note
     const recipeIds = req.body.recipeIds || []
-    const startingCollectionId = 4
+    const startingCollectionId = 7
 
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' })
