@@ -66,12 +66,6 @@ const getNewAccessToken = async refreshToken => {
 }
 
 const googleCallBack = async (req, res) => {
-  const oAuth2Client = getOAuth2Client()
-  oAuth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: scopes,
-    prompt: 'select_account'
-  })
   const code = req.query.code
   //'getGoogleAccessToken': obtains the access token and refresh token using the authorization code provided in the 'code'.
   const tokens = await getAccessToken(code)
@@ -111,9 +105,9 @@ const googleCallBack = async (req, res) => {
   // req.session.gg_access_token = tokens.access_token
   // req.session.gg_expires = tokens.expiry_date
   // console.log('refresh:', req.session.gg_refresh_token)
-  console.log('refresh:', tokens.refresh_token)
+  // console.log('refresh:', tokens.refresh_token)
 
-  res.send('Tokens for sending mail received!')
+  res.send("Get new Google authorization Token for Company's email to enable 'Sending mail to Users' successfully!")
 }
 
 module.exports = {
