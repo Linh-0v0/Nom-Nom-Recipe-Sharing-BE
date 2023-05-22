@@ -106,7 +106,7 @@ const googleCallBack = async (req, res) => {
   // console.log('refresh:', req.session.gg_refresh_token)
   console.log('refresh:', tokens.refresh_token)
 
-  // res.send('Tokens for sending mail received!')
+  res.send('Tokens for sending mail received!')
 }
 
 module.exports = {
