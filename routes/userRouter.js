@@ -44,6 +44,7 @@ router.get('/auth/google', (req, res) => {
   const oAuth2Client = getOAuth2Client()
   // const isAuthorized = oAuth2Client.credentials && oAuth2Client.credentials.refresh_token
   console.log('authURL: ', authUrl)
+  res.send(authUrl)
   // res.redirect(authUrl)
 })
 
