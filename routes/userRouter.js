@@ -40,14 +40,11 @@ router.get('/users', User.getAllUsers)
 //allow users to grant permission to your app to access their Google account.
 router.get('/auth/google', (req, res) => {
   const authUrl = getAuthUrl() //returns the authorization URL
-  // Check if the user is already authenticated with a Google account
-  if (req.user && req.user.googleAccountId) {
-    // Clear the current user's Google account information
-    req.logout();
-  }
-
-  // Redirect the user to the authorization URL
-  res.redirect(authUrl);
+  // Check if the user is already authenticated
+  const oAuth2Client = getOAuth2Client()
+  // const isAuthorized = oAuth2Client.credentials && oAuth2Client.credentials.refresh_token
+  console.log('authURL: ', authUrl)
+  // res.redirect(authUrl)
 })
 
 //Google will redirect the user to this route after they grant permission to your app

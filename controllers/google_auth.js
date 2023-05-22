@@ -33,7 +33,7 @@ const getAuthUrl = () => {
   return oAuth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: scopes,
-    prompt: 'select_account'
+    prompt: 'select_account'  
   })
 }
 
