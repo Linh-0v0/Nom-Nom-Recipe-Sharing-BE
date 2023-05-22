@@ -12,7 +12,6 @@ const db = {
 }
 
 // const dbConnect = pgp(db)
-// const dbConnect = pgp(process.env.DATABASE_URI)
 const dbConnect = pgp({
   connectionString: process.env.DATABASE_URI,
   ssl: {
@@ -23,6 +22,36 @@ const dbConnect = pgp({
 module.exports = dbConnect
 
 /* -------------------------------------------------- */
+
+// Function to execute SQL file using pg-promise
+async function initializeAllTablesData() {
+  try {
+    const mainFilePath = path.join(__dirname, 'models', 'main.sql')
+
+    // Define a regular expression pattern to match file paths after '\i' statements
+    const pattern = /\\i\s+([^\n\r]+)/g
+
+    const mainSqlContent = fs.readFileSync(mainFilePath, 'utf-8')
+
+    // Extract the file paths from the SQL content
+    const fileMatches = mainSqlContent.match(pattern)
+
+    // Remove the '\i' from each file path
+    const filePaths = fileMatches.map(match => match.replace('\\i', '').trim())
+
+    for (const filePath of filePaths) {
+      const filePathFromRoot = path.join(__dirname, filePath)
+      const sql = fs.readFileSync(filePathFromRoot, 'utf-8')
+      await dbConnect.none(sql)
+    }
+
+    console.log('All SQL statements executed successfully.')
+    //
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 async function initializeUserSample() {
   try {
     const filePath = path.join(__dirname, 'models', 'user_mgm', 'users.sql')
@@ -91,7 +120,8 @@ async function addSampleUsers() {
 async function runSampleUsersData() {
   await initializeUserSample()
   await uniqueEmailConstraint()
-  addSampleUsers()
+  await addSampleUsers()
+  initializeAllTablesData()
 }
 
 runSampleUsersData()
