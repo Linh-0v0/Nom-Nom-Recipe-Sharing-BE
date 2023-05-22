@@ -42,9 +42,9 @@ router.get('/auth/google', (req, res) => {
   const authUrl = getAuthUrl() //returns the authorization URL
   // Check if the user is already authenticated
   const oAuth2Client = getOAuth2Client()
-  // const isAuthorized = oAuth2Client.credentials && oAuth2Client.credentials.refresh_token
   console.log('authURL: ', authUrl)
-  res.send(authUrl)
+  res.send(`<b>Link to validate Company's email to be able for sending email to user (expired in 1h):</b><br>
+  <a href="${authUrl}">${authUrl}</a> to visit the link.`)
   // res.redirect(authUrl)
 })
 

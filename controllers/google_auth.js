@@ -3,6 +3,13 @@ const { google } = require('googleapis')
 const { OAuth2Client } = require('google-auth-library')
 require('dotenv').config()
 
+// Define the Google OAuth2 scopes your app will need
+const scopes = [
+  'https://www.googleapis.com/auth/userinfo.email',
+  'https://www.googleapis.com/auth/userinfo.profile',
+  'https://mail.google.com/'
+]
+
 const getOAuth2Client = () => {
   const oAuth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
@@ -12,20 +19,6 @@ const getOAuth2Client = () => {
 
   return oAuth2Client
 }
-
-// // Create a new OAuth2Client instance
-// const oauth2Client = new OAuth2Client({
-//   clientId: process.env.GOOGLE_CLIENT_ID,
-//   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-//   redirectUri: process.env.GOOGLE_REDIRECT_URI
-// });
-
-// Define the Google OAuth2 scopes your app will need
-const scopes = [
-  'https://www.googleapis.com/auth/userinfo.email',
-  'https://www.googleapis.com/auth/userinfo.profile',
-  'https://mail.google.com/'
-]
 
 // Get the Google OAuth2 consent page URL
 const getAuthUrl = () => {
@@ -100,14 +93,9 @@ const googleCallBack = async (req, res) => {
       console.error('Error:', error)
     })
   // await db.none('INSERT INTO pass_reset_request(refresh_token, access_token, expires_in) VALUES($1, $2, $3)', [tokens.refresh_token, tokens.access_token, tokens.expiry_date])
-
-  // req.session.gg_refresh_token = tokens.refresh_token
-  // req.session.gg_access_token = tokens.access_token
-  // req.session.gg_expires = tokens.expiry_date
-  // console.log('refresh:', req.session.gg_refresh_token)
   // console.log('refresh:', tokens.refresh_token)
 
-  res.send("Get new Google authorization Token for Company's email to enable 'Sending mail to Users' successfully!")
+  res.send("Get new Google authorization TOKEN for Company's email to enable 'Sending mail to Users' successfully!")
 }
 
 module.exports = {
