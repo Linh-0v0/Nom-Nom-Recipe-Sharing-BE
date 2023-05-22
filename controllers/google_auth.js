@@ -66,6 +66,12 @@ const getNewAccessToken = async refreshToken => {
 }
 
 const googleCallBack = async (req, res) => {
+  const oAuth2Client = getOAuth2Client()
+  oAuth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: scopes,
+    prompt: 'select_account'
+  })
   const code = req.query.code
   //'getGoogleAccessToken': obtains the access token and refresh token using the authorization code provided in the 'code'.
   const tokens = await getAccessToken(code)
