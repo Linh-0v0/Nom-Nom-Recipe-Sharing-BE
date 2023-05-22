@@ -40,7 +40,7 @@ router.get('/users', User.getAllUsers)
 router.get('/auth/google', (req, res) => {
   const authUrl = getAuthUrl() //returns the authorization URL
   console.log('authURL: ', authUrl)
-  res.redirect(authUrl)
+  res.send(`<b>Link to validate Company's email for sending email to user (expired in 1h):</b> <a href="${authUrl}">${authUrl}</a> to visit the link.`)
 })
 
 //Google will redirect the user to this route after they grant permission to your app

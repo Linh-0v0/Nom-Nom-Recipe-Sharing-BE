@@ -106,14 +106,7 @@ const googleCallBack = async (req, res) => {
   // console.log('refresh:', req.session.gg_refresh_token)
   console.log('refresh:', tokens.refresh_token)
 
-  // res.cookie('google_token', tokens, {
-  //   //HttpOnly to prevent XSS attacks
-  //   httpOnly: true,
-  //   path: '/mail-reset-pass',
-  //   maxAge: 3600000 //1h
-  // })
-
-  res.send('Tokens for sending mail received!')
+  // res.send('Tokens for sending mail received!')
 }
 
 module.exports = {
