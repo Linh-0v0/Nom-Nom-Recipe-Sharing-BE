@@ -376,34 +376,44 @@ collectionCtrl.saveCollectionImg = async (req, res) => {
 //Get collection img
 collectionCtrl.getCollectionImg = async (req, res) => {
   try {
-    const { collectionId } = req.params
+    const { collectionId } = req.params;
     const collection = await db.oneOrNone(
       'SELECT * FROM collection WHERE collection_id = $1',
       [collectionId]
-    )
+    );
     if (!collection) {
-      return res.status(400).send('Invalid collection id.')
+      return res.status(400).send('Invalid collection id.');
     }
+
     const collectionImgUrl = await db.oneOrNone(
       'SELECT image_link FROM collection WHERE collection_id = $1',
       [collectionId]
-    )
+    );
 
-    const image_link = collectionImgUrl.image_link
-    const collection_default = 'default-collection-image.jpg'
-    const storageRef = ref(
-      storage,
-      `${!image_link ? collection_default : image_link}`
-    )
-    console.log(image_link)
-    getDownloadURL(storageRef).then(url => {
-      console.log('Image URL:', url)
-      res.status(200).json(url)
-    })
-    console.log('imageRef Full Path:', storageRef.fullPath)
+    const image_link = collectionImgUrl.image_link;
+    const collection_default = 'default-collection-image.jpg';
+
+    if (!image_link) {
+      return res.status(200).send('Cannot get image.');
+    }
+
+    const storageRef = ref(storage, image_link);
+    console.log(image_link);
+
+    getDownloadURL(storageRef)
+      .then(url => {
+        console.log('Image URL:', url);
+        res.status(200).json(url);
+      })
+      .catch(() => {
+        return res.status(200).send('Cannot get image.');
+      });
+
+    console.log('imageRef Full Path:', storageRef.fullPath);
   } catch (err) {
-    return res.status(500).json({ msg: err.message })
+    return res.status(500).json({ msg: err.message });
   }
-}
+};
+
 
 module.exports = collectionCtrl
