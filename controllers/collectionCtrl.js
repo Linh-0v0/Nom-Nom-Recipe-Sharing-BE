@@ -17,6 +17,7 @@ collectionCtrl.createCollection = async (req, res) => {
     const name = req.body.name
     const note = req.body.note
     const recipeIds = req.body.recipeIds || []
+    const startingCollectionId = 4
 
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' })
@@ -30,10 +31,17 @@ collectionCtrl.createCollection = async (req, res) => {
       const client = await db.connect()
       await client.query('BEGIN')
 
+      const getMaxCollectionIdQuery = 'SELECT MAX(collection_id) AS max_collection_id FROM collection'
+      const { max_collection_id } = await client
+        .query(getMaxCollectionIdQuery)
+        .then(result => result[0])
+
+      const collection_id = Math.max(max_collection_id + 1, startingCollectionId)
+
       // Insert a new row into the collections table
       const insertCollectionQuery =
-        'INSERT INTO collection (user_id, name, note) VALUES ($1, $2, $3) RETURNING collection_id'
-      const insertCollectionValues = [userId, name, note]
+        'INSERT INTO collection (collection_id, user_id, name, note) VALUES ($1, $2, $3, $4) RETURNING collection_id'
+      const insertCollectionValues = [collection_id, userId, name, note]
       const insertCollectionResult = await client.query(
         insertCollectionQuery,
         insertCollectionValues
@@ -50,14 +58,14 @@ collectionCtrl.createCollection = async (req, res) => {
       }
 
       await client.query('COMMIT')
-
-      res.status(201).json({ message: 'Collection created' })
+      res.status(201).json({ collectionId, message: 'Collection created' })
     } catch (error) {
       console.error('Error creating collection:', error)
       res.status(500).json({ message: 'Error creating collection' })
     }
   })
 }
+
 
 //Get all collection
 collectionCtrl.getCollection = async (req, res) => {
@@ -345,15 +353,18 @@ collectionCtrl.saveCollectionImg = async (req, res) => {
 
     // Save Collection Image to the Firebase Cloud
     console.log('running save collection image', req.file)
-    const storageRef = ref(storage, `/collections/${uuidv4()}-${file.originalname}`)
+    const storageRef = ref(
+      storage,
+      `/collections/${uuidv4()}-${file.originalname}`
+    )
 
     uploadBytes(storageRef, file.buffer)
 
     const firestoreUrl = storageRef.fullPath
-    await db.none('UPDATE collection SET image_link=$2 WHERE collection_id=$1', [
-      collectionId,
-      firestoreUrl
-    ])
+    await db.none(
+      'UPDATE collection SET image_link=$2 WHERE collection_id=$1',
+      [collectionId, firestoreUrl]
+    )
 
     res.status(200).json({ msg: 'Uploaded successfully' })
   } catch (err) {
@@ -365,31 +376,44 @@ collectionCtrl.saveCollectionImg = async (req, res) => {
 //Get collection img
 collectionCtrl.getCollectionImg = async (req, res) => {
   try {
-    const { collectionId } = req.params
+    const { collectionId } = req.params;
     const collection = await db.oneOrNone(
       'SELECT * FROM collection WHERE collection_id = $1',
       [collectionId]
-    )
+    );
     if (!collection) {
-      return res.status(400).send('Invalid collection id.')
+      return res.status(400).send('Invalid collection id.');
     }
+
     const collectionImgUrl = await db.oneOrNone(
       'SELECT image_link FROM collection WHERE collection_id = $1',
       [collectionId]
-    )
+    );
 
-    const image_link = collectionImgUrl.image_link
-    const collection_default = 'default-collection-image.jpg'
-    const storageRef = ref(storage, `${!image_link ? collection_default : image_link}`)
-    console.log(image_link)
-    getDownloadURL(storageRef).then(url => {
-      console.log('Image URL:', url)
-      res.status(200).json(url)
-    })
-    console.log('imageRef Full Path:', storageRef.fullPath)
+    const image_link = collectionImgUrl.image_link;
+    const collection_default = 'default-collection-image.jpg';
+
+    if (!image_link) {
+      return res.status(200).send('Cannot get image.');
+    }
+
+    const storageRef = ref(storage, image_link);
+    console.log(image_link);
+
+    getDownloadURL(storageRef)
+      .then(url => {
+        console.log('Image URL:', url);
+        res.status(200).json(url);
+      })
+      .catch(() => {
+        return res.status(200).send('Cannot get image.');
+      });
+
+    console.log('imageRef Full Path:', storageRef.fullPath);
   } catch (err) {
-    return res.status(500).json({ msg: err.message })
+    return res.status(500).json({ msg: err.message });
   }
-}
+};
+
 
 module.exports = collectionCtrl

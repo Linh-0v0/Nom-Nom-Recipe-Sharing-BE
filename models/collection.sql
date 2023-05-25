@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS collection (
   name VARCHAR(100) NOT NULL,
   note TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  updated_at TIMESTAMP DEFAULT NOW(),
+  image_link VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS collection_recipe (
