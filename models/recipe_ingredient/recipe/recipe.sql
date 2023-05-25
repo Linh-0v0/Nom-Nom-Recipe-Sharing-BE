@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS recipe (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   serving_size DECIMAL(10,2) NOT NULL,
-  serving_unit VARCHAR(255) NULL,
+  serving_unit VARCHAR(255) NOT NULL,
   duration INTERVAL,
   image_link VARCHAR(255),
   description TEXT NOT NULL
