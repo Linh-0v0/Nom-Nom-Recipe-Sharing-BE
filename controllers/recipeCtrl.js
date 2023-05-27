@@ -168,7 +168,7 @@ recipeCtrl.updateRecipe = async (req, res) => {
 
     // Update the recipe
     const updateRecipeQuery =
-      'UPDATE recipe SET name = $1, serving_size = $2, serving_unit = $3, duration = $4, image_link = $4=5, description = $6, updated_at = NOW() WHERE recipe_id = $7'
+      'UPDATE recipe SET name = $1, serving_size = $2, serving_unit = $3, duration = $4, image_link = $5, description = $6, updated_at = NOW() WHERE recipe_id = $7'
     const updateRecipeValues = [
       name,
       serving_size,
