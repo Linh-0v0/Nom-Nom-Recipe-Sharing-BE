@@ -698,81 +698,76 @@ recipeCtrl.getRecipeByDietary = async (req, res) => {
 //Post or update recipe img
 recipeCtrl.saveRecipeImg = async (req, res) => {
   try {
-    const { recipeId } = req.params
-    const file = req.file
-    const recipe = await db.oneOrNone(
-      'SELECT * FROM recipe WHERE recipe_id = $1',
-      [recipeId]
-    )
+    const { recipeId } = req.params;
+    const file = req.file;
+    const recipe = await db.oneOrNone('SELECT * FROM recipe WHERE recipe_id = $1', [recipeId]);
+    
     if (!recipe) {
-      return res.status(400).send('Invalid recipe.')
+      return res.status(400).send('Invalid recipe.');
     }
-    const recipeImgUrl = await db.oneOrNone(
-      'SELECT image_link FROM recipe WHERE recipe_id = $1',
-      [recipeId]
-    )
 
-    if (recipeImgUrl) {
-      // If old image exists, Delete the old one on Firestore Cloud
-      const oldStorageRef = ref(storage, `${recipeImgUrl.img_url}`)
+    const oldRecipeImageLink = recipe.image_link;
+
+    if (oldRecipeImageLink) {
+      // If old image exists, delete the old one on Firebase Cloud Storage
+      const oldStorageRef = ref(storage, oldRecipeImageLink);
+
       // Delete the file
-      deleteObject(oldStorageRef)
-        .then(() => {
-          console.log('Delete the old image on Firebase Cloud successfully.')
-        })
-        .catch(error => {
-          console.log(error)
-        })
+      await deleteObject(oldStorageRef);
+      console.log('Deleted the old image on Firebase Cloud Storage successfully.');
     }
 
-    // Save Recipe Image to the Firebase Cloud
-    console.log('running save recipe image', req.file)
-    const storageRef = ref(storage, `/recipes/${uuidv4()}-${file.originalname}`)
+    // Save Recipe Image to Firebase Cloud Storage
+    console.log('Running save recipe image', req.file);
+    const fileName = `${uuidv4()}-${file.originalname}`;
+    const storageRef = ref(storage, `/recipes/${fileName}`);
+    await uploadBytes(storageRef, file.buffer);
 
-    uploadBytes(storageRef, file.buffer)
+    const firestoreUrl = storageRef.fullPath;
+    await db.none('UPDATE recipe SET image_link=$2 WHERE recipe_id=$1', [recipeId, firestoreUrl]);
 
-    const firestoreUrl = storageRef.fullPath
-    await db.none('UPDATE recipe SET image_link=$2 WHERE recipe_id=$1', [
-      recipeId,
-      firestoreUrl
-    ])
-
-    res.status(200).json({ msg: 'Uploaded successfully' })
+    res.status(200).json({ msg: 'Uploaded successfully' });
   } catch (err) {
-    console.log(err)
-    res.status(500).json({ msg: err })
+    console.log(err);
+    res.status(500).json({ msg: err });
   }
-}
+};
+
 
 //Get recipe img
 recipeCtrl.getRecipeImg = async (req, res) => {
   try {
-    const { recipeId } = req.params
-    const recipe = await db.oneOrNone(
-      'SELECT * FROM recipe WHERE recipe_id = $1',
-      [recipeId]
-    )
+    const { recipeId } = req.params;
+    const recipe = await db.oneOrNone('SELECT * FROM recipe WHERE recipe_id = $1', [recipeId]);
+    
     if (!recipe) {
-      return res.status(400).send('Invalid recipe id.')
+      return res.status(400).send('Invalid recipe id.');
     }
-    const recipeImgUrl = await db.oneOrNone(
-      'SELECT image_link FROM recipe WHERE recipe_id = $1',
-      [recipeId]
-    )
 
-    const image_link = recipeImgUrl.image_link
-    const recipe_default = 'default-recipe-image.jpg'
-    const storageRef = ref(storage, `${!image_link ? recipe_default : image_link}`)
-    console.log(image_link)
-    getDownloadURL(storageRef).then(url => {
-      console.log('Image URL:', url)
-      res.status(200).json(url)
-    })
-    console.log('imageRef Full Path:', storageRef.fullPath)
+    const recipeImgUrl = await db.oneOrNone('SELECT image_link FROM recipe WHERE recipe_id = $1', [recipeId]);
+    const imageLink = recipeImgUrl ? recipeImgUrl.image_link : '';
+
+    if (!imageLink) {
+      return res.status(400).send('No image');
+    }
+    const storageRef = ref(storage, imageLink);
+    console.log(imageLink);
+
+    getDownloadURL(storageRef)
+      .then(url => {
+        console.log('Image URL:', url);
+        res.status(200).json(url);
+      })
+      .catch(error => {
+        console.log('Error retrieving image URL:', error);
+        res.status(500).json({ msg: error.message });
+      });
+
+    console.log('imageRef Full Path:', storageRef.fullPath);
   } catch (err) {
-    return res.status(500).json({ msg: err.message })
+    return res.status(500).json({ msg: err.message });
   }
-}
+};
 
 
 //Search recipe base on all requirements
