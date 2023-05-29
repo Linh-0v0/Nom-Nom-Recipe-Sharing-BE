@@ -324,89 +324,71 @@ collectionCtrl.removeCollection = async (req, res) => {
 
 collectionCtrl.saveCollectionImg = async (req, res) => {
   try {
-    const { collectionId } = req.params
-    const file = req.file
-    const collection = await db.oneOrNone(
-      'SELECT * FROM collection WHERE collection_id = $1',
-      [collectionId]
-    )
+    const { collectionId } = req.params;
+    const file = req.file;
+    const collection = await db.oneOrNone('SELECT * FROM collection WHERE collection_id = $1', [collectionId]);
+
     if (!collection) {
-      return res.status(400).send('Invalid collection.')
+      return res.status(400).send('Invalid collection.');
     }
-    const collectionImgUrl = await db.oneOrNone(
-      'SELECT image_link FROM collection WHERE collection_id = $1',
-      [collectionId]
-    )
 
-    if (collectionImgUrl) {
-      // If old image exists, Delete the old one on Firestore Cloud
-      const oldStorageRef = ref(storage, `${collectionImgUrl.image_link}`)
+    const oldCollectionImageLink = collection.image_link;
+
+    if (oldCollectionImageLink) {
+      // If old image exists, delete the old one on Firebase Cloud Storage
+      const oldStorageRef = ref(storage, oldCollectionImageLink);
+
       // Delete the file
-      deleteObject(oldStorageRef)
-        .then(() => {
-          console.log('Delete the old image on Firebase Cloud successfully.')
-        })
-        .catch(error => {
-          console.log(error)
-        })
+      await deleteObject(oldStorageRef);
+      console.log('Deleted the old image on Firebase Cloud Storage successfully.');
     }
 
-    // Save Collection Image to the Firebase Cloud
-    console.log('running save collection image', req.file)
-    const storageRef = ref(
-      storage,
-      `/collections/${uuidv4()}-${file.originalname}`
-    )
+    // Save Collection Image to Firebase Cloud Storage
+    console.log('Running save collection image', req.file);
+    const fileName = `${uuidv4()}-${file.originalname}`;
+    const storageRef = ref(storage, `/collections/${fileName}`);
+    await uploadBytes(storageRef, file.buffer);
 
-    uploadBytes(storageRef, file.buffer)
+    const firestoreUrl = storageRef.fullPath;
+    await db.none('UPDATE collection SET image_link=$2 WHERE collection_id=$1', [collectionId, firestoreUrl]);
 
-    const firestoreUrl = storageRef.fullPath
-    await db.none(
-      'UPDATE collection SET image_link=$2 WHERE collection_id=$1',
-      [collectionId, firestoreUrl]
-    )
-
-    res.status(200).json({ msg: 'Uploaded successfully' })
+    res.status(200).json({ msg: 'Uploaded successfully' });
   } catch (err) {
-    console.log(err)
-    res.status(500).json({ msg: err })
+    console.log(err);
+    res.status(500).json({ msg: err });
   }
-}
+};
 
-//Get collection img
+
 collectionCtrl.getCollectionImg = async (req, res) => {
   try {
     const { collectionId } = req.params;
-    const collection = await db.oneOrNone(
-      'SELECT * FROM collection WHERE collection_id = $1',
-      [collectionId]
-    );
+    const collection = await db.oneOrNone('SELECT * FROM collection WHERE collection_id = $1', [collectionId]);
+
     if (!collection) {
       return res.status(400).send('Invalid collection id.');
     }
 
-    const collectionImgUrl = await db.oneOrNone(
-      'SELECT image_link FROM collection WHERE collection_id = $1',
-      [collectionId]
-    );
+    const collectionImgUrl = await db.oneOrNone('SELECT image_link FROM collection WHERE collection_id = $1', [collectionId]);
 
-    const image_link = collectionImgUrl.image_link;
-    const collection_default = 'default-collection-image.jpg';
+    const imageLink = collectionImgUrl.image_link;
+    const collection_default = 'recipes/021c561a-default-recipe-img.svg'
 
-    if (!image_link) {
-      return res.status(200).send('Cannot get image.');
-    }
+   
+    const storageRef = ref(storage, 
+      `${!imageLink ? collection_default : imageLink}`);
+    console.log(imageLink);
 
-    const storageRef = ref(storage, image_link);
-    console.log(image_link);
+
 
     getDownloadURL(storageRef)
       .then(url => {
         console.log('Image URL:', url);
         res.status(200).json(url);
       })
-      .catch(() => {
-        return res.status(200).send('Cannot get image.');
+      .catch(error => {
+        console.log('Error retrieving image URL:', error);
+        res.status(500).json({ msg: error.message });
       });
 
     console.log('imageRef Full Path:', storageRef.fullPath);
@@ -414,6 +396,7 @@ collectionCtrl.getCollectionImg = async (req, res) => {
     return res.status(500).json({ msg: err.message });
   }
 };
+
 
 
 module.exports = collectionCtrl
