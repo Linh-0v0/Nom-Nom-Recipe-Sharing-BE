@@ -745,13 +745,14 @@ recipeCtrl.getRecipeImg = async (req, res) => {
     }
 
     const recipeImgUrl = await db.oneOrNone('SELECT image_link FROM recipe WHERE recipe_id = $1', [recipeId]);
-    const imageLink = recipeImgUrl ? recipeImgUrl.image_link : '';
+    const imageLink = recipeImgUrl.image_link;
+    const recipe_default = 'recipes/021c561a-default-recipe-img.svg'
 
-    if (!imageLink) {
-      return res.status(400).send('No image');
-    }
-    const storageRef = ref(storage, imageLink);
+   
+    const storageRef = ref(storage, 
+      `${!imageLink ? recipe_default : imageLink}`);
     console.log(imageLink);
+
 
     getDownloadURL(storageRef)
       .then(url => {
