@@ -370,14 +370,15 @@ collectionCtrl.getCollectionImg = async (req, res) => {
 
     const collectionImgUrl = await db.oneOrNone('SELECT image_link FROM collection WHERE collection_id = $1', [collectionId]);
 
-    const imageLink = collectionImgUrl ? collectionImgUrl.image_link : '';
+    const imageLink = collectionImgUrl.image_link;
+    const collection_default = 'recipes/021c561a-default-recipe-img.svg'
 
-    if (!imageLink) {
-      return res.status(400).send('No image');
-    }
-
-    const storageRef = ref(storage, imageLink);
+   
+    const storageRef = ref(storage, 
+      `${!imageLink ? collection_default : imageLink}`);
     console.log(imageLink);
+
+
 
     getDownloadURL(storageRef)
       .then(url => {
