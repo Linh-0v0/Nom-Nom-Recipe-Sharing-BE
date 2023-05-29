@@ -332,11 +332,11 @@ collectionCtrl.saveCollectionImg = async (req, res) => {
       return res.status(400).send('Invalid collection.');
     }
 
-    const collectionImgUrl = await db.oneOrNone('SELECT image_link FROM collection WHERE collection_id = $1', [collectionId]);
+    const oldCollectionImageLink = collection.image_link;
 
-    if (collectionImgUrl) {
+    if (oldCollectionImageLink) {
       // If old image exists, delete the old one on Firebase Cloud Storage
-      const oldStorageRef = ref(storage, collectionImgUrl.image_link);
+      const oldStorageRef = ref(storage, oldCollectionImageLink);
 
       // Delete the file
       await deleteObject(oldStorageRef);
@@ -358,6 +358,7 @@ collectionCtrl.saveCollectionImg = async (req, res) => {
     res.status(500).json({ msg: err });
   }
 };
+
 
 collectionCtrl.getCollectionImg = async (req, res) => {
   try {
