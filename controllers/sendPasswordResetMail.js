@@ -18,7 +18,7 @@ const sendPasswordResetMail = async (req, res) => {
 
     const resetToken = user.reset_token
     const user_id = user.id
-    const resetLink = `${process.env.FE_URI}/${resetToken}/${user_id}`
+    const resetLink = `${process.env.FE_URI}/reset-password/${resetToken}/${user_id}`
 
     const googleTokenData = await db.oneOrNone(
       'SELECT * FROM google_tokens WHERE id = $1',
