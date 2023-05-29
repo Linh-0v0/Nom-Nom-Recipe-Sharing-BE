@@ -148,7 +148,7 @@ recipeCtrl.get = async (req, res) => {
 recipeCtrl.updateRecipe = async (req, res) => {
   const userId = req.user && req.user.id
   const recipeId = req.params.recipe_id
-  const { name, serving_size, serving_unit, duration, image_link, description } = req.body
+  const { name, serving_size, serving_unit, duration, description } = req.body
 
   try {
     // Check if the recipe exists
@@ -168,13 +168,12 @@ recipeCtrl.updateRecipe = async (req, res) => {
 
     // Update the recipe
     const updateRecipeQuery =
-      'UPDATE recipe SET name = $1, serving_size = $2, serving_unit = $3, duration = $4, image_link = $5, description = $6, updated_at = NOW() WHERE recipe_id = $7'
+      'UPDATE recipe SET name = $1, serving_size = $2, serving_unit = $3, duration = $4, description = $5, updated_at = NOW() WHERE recipe_id = $6'
     const updateRecipeValues = [
       name,
       serving_size,
       serving_unit,
       duration,
-      image_link,
       description,
       recipeId
     ]
