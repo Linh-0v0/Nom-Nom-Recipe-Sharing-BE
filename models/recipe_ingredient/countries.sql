@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS countries (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(255)
+  name VARCHAR(255) UNIQUE
 );
 
 CREATE INDEX ON countries (name);
@@ -204,4 +204,4 @@ VALUES
   ('Yemen'),
   ('Zambia'),
   ('Zimbabwe')
-  ON CONFLICT DO NOTHING;
+  ON CONFLICT (name) DO NOTHING;
